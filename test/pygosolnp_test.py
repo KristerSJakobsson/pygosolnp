@@ -25,6 +25,7 @@ class TestStringMethods(unittest.TestCase):
                       random_number_seed=443)
 
         print(result)
+        self.assertAlmostEqual(result.solve_value, 243.813, 3)
         # # should get a function value around 243.813
 
         # ans = gosolnp(pars=NULL, fixed=NULL, fun=gofn, eqfun=goeqfn, eqB=eqB, LB=LB, UB=UB,
@@ -50,7 +51,6 @@ class TestStringMethods(unittest.TestCase):
         # attr(bt, "description") = paste(
         #     "The equilibrium state distribution (of minimal Coulomb potential)\n of the electrons positioned on a conducting sphere.")
         # return (bt)
-        self.assertEqual('foo'.upper(), 'FOO')
 
 
 if __name__ == '__main__':
