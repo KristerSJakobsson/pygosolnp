@@ -13,17 +13,23 @@ class Electron:
         self.__number_of_charges = number_of_charges
 
     @property
+    def number_of_charges(self):
+        return self.__number_of_charges
+
+    @property
+    def number_of_parameters(self):
+        return self.__number_of_charges * 3
+
+    @property
     def parameter_lower_bound(self):
-        return [-1] * 3 * self.__number_of_charges
+        return [-1] * self.number_of_parameters
 
     @property
     def parameter_upper_bound(self):
-        return [1] * 3 * self.__number_of_charges
+        return [1] * self.number_of_parameters
 
     def objective_function(self, data):
-        n = self.__number_of_charges
-        if len(data) != 75:
-            print(f"data length {len(data)}")
+        n = self.number_of_charges
         x = data[0:n]
         y = data[n:2 * n]
         z = data[2 * n:3 * n]
@@ -36,11 +42,11 @@ class Electron:
         return result
 
     def equality_function(self, data):
-        n = self.__number_of_charges
+        n = self.number_of_charges
         x = data[0:n]
         y = data[n:2 * n]
         z = data[2 * n:3 * n]
-        result = [None] * (n)
+        result = [None] * n
         for i in range(0, n):
             result[i] = x[i] ** 2 + y[i] ** 2 + z[i] ** 2
 
@@ -48,4 +54,4 @@ class Electron:
 
     @property
     def equality_constraint_bounds(self):
-        return [1] * self.__number_of_charges
+        return [1] * self.number_of_charges
