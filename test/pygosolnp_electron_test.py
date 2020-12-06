@@ -46,8 +46,7 @@ class TestPygosolnpElectron(unittest.TestCase):
         upper_bounds = self.electron.parameter_upper_bound
         lower_bounds = self.electron.parameter_lower_bound
 
-        result = solve(fixed_starting_parameters=None,
-                       obj_func=objective_function,
+        result = solve(obj_func=objective_function,
                        eq_func=equality_function,
                        eq_values=equality_bounds,
                        par_lower_limit=lower_bounds,
@@ -78,8 +77,7 @@ class TestPygosolnpElectron(unittest.TestCase):
         upper_bounds = self.electron.parameter_upper_bound
         lower_bounds = self.electron.parameter_lower_bound
 
-        result = solve(fixed_starting_parameters=None,
-                       obj_func=objective_function,
+        result = solve(obj_func=objective_function,
                        eq_func=equality_function,
                        eq_values=equality_bounds,
                        par_lower_limit=lower_bounds,
@@ -95,8 +93,6 @@ class TestPygosolnpElectron(unittest.TestCase):
         optimum = result.optimum
         objective_function_value = objective_function(optimum)
         equality_function_value = equality_function(optimum)
-        print(objective_function_value)
-        print(equality_function_value)
 
         for index, value in enumerate(optimum):
             self.assertGreaterEqual(value, lower_bounds[index])
