@@ -1,6 +1,7 @@
 import unittest
+
+from src.benchmarks.electron import Electron, obj_func, eq_func
 from src.pygosolnp import solve, EvaluationType
-from src.benchmarks.electron import Electron
 
 
 class TestPygosolnpElectron(unittest.TestCase):
@@ -34,33 +35,32 @@ class TestPygosolnpElectron(unittest.TestCase):
             self.assertGreaterEqual(value, lower_bounds[index])
             self.assertLessEqual(value, upper_bounds[index])
 
-        self.assertAlmostEqual(objective_function_value, 243.8128, 4)
+        self.assertAlmostEqual(objective_function_value, 243.8128, 3)
 
         for index, value in enumerate(equality_function_value):
             self.assertAlmostEqual(value, equality_bounds[index], 6)
 
-    def test_electron_optimization_exclude_indequalities(self):
+    def test_electron_optimization_exclude_indequalities_single_process(self):
         objective_function = lambda x: self.electron.objective_function(x)
         equality_function = lambda x: self.electron.equality_function(x)
         equality_bounds = self.electron.equality_constraint_bounds
         upper_bounds = self.electron.parameter_upper_bound
         lower_bounds = self.electron.parameter_lower_bound
 
-        result = solve(obj_func=objective_function,
-                       eq_func=equality_function,
-                       eq_values=equality_bounds,
-                       par_lower_limit=lower_bounds,
-                       par_upper_limit=upper_bounds,
-                       number_of_restarts=2,
-                       number_of_simulations=20000,
-                       number_of_processes=None,
-                       random_number_seed=443,
-                       max_major_iter=100,
-                       evaluation_type=EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ,
-                       debug=True)
+        results = solve(obj_func=objective_function,
+                        eq_func=equality_function,
+                        eq_values=equality_bounds,
+                        par_lower_limit=lower_bounds,
+                        par_upper_limit=upper_bounds,
+                        number_of_restarts=20,
+                        number_of_simulations=20000,
+                        number_of_processes=None,
+                        random_number_seed=443,
+                        max_major_iter=100,
+                        evaluation_type=EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ,
+                        debug=False)
 
-        optimum = result.optimum
-        objective_function_value = objective_function(optimum)
+        optimum = results.best_solution.parameters
         equality_function_value = equality_function(optimum)
 
         for index, value in enumerate(optimum):
@@ -68,30 +68,31 @@ class TestPygosolnpElectron(unittest.TestCase):
             self.assertLessEqual(value, upper_bounds[index])
 
         for index, value in enumerate(equality_function_value):
-            self.assertAlmostEqual(value, equality_bounds[index], 4)
+            self.assertAlmostEqual(value, equality_bounds[index], 3)
 
-    def test_electron_optimization_penalty_barrier_function(self):
+        self.assertAlmostEqual(results.best_solution.obj_value, 243.90389900772098, 8)
+
+    def test_electron_optimization_penalty_barrier_function_single_process(self):
         objective_function = lambda x: self.electron.objective_function(x)
         equality_function = lambda x: self.electron.equality_function(x)
         equality_bounds = self.electron.equality_constraint_bounds
         upper_bounds = self.electron.parameter_upper_bound
         lower_bounds = self.electron.parameter_lower_bound
 
-        result = solve(obj_func=objective_function,
-                       eq_func=equality_function,
-                       eq_values=equality_bounds,
-                       par_lower_limit=lower_bounds,
-                       par_upper_limit=upper_bounds,
-                       number_of_restarts=2,
-                       number_of_simulations=20000,
-                       number_of_processes=None,
-                       random_number_seed=443,
-                       max_major_iter=100,
-                       evaluation_type=EvaluationType.PENALTY_BARRIER_FUNCTION,
-                       debug=True)
+        results = solve(obj_func=objective_function,
+                        eq_func=equality_function,
+                        eq_values=equality_bounds,
+                        par_lower_limit=lower_bounds,
+                        par_upper_limit=upper_bounds,
+                        number_of_restarts=2,
+                        number_of_simulations=20000,
+                        number_of_processes=None,
+                        random_number_seed=443,
+                        max_major_iter=100,
+                        evaluation_type=EvaluationType.PENALTY_BARRIER_FUNCTION,
+                        debug=False)
 
-        optimum = result.optimum
-        objective_function_value = objective_function(optimum)
+        optimum = results.best_solution.parameters
         equality_function_value = equality_function(optimum)
 
         for index, value in enumerate(optimum):
@@ -99,7 +100,69 @@ class TestPygosolnpElectron(unittest.TestCase):
             self.assertLessEqual(value, upper_bounds[index])
 
         for index, value in enumerate(equality_function_value):
-            self.assertAlmostEqual(value, equality_bounds[index], 4)
+            self.assertAlmostEqual(value, equality_bounds[index], 3)
+
+        self.assertAlmostEqual(results.best_solution.obj_value, 244.306576412278, 8)
+
+    def test_electron_optimization_exclude_inequalities_multiple_processes(self):
+        equality_bounds = self.electron.equality_constraint_bounds
+        upper_bounds = self.electron.parameter_upper_bound
+        lower_bounds = self.electron.parameter_lower_bound
+
+        results = solve(obj_func=obj_func,
+                        eq_func=eq_func,
+                        eq_values=equality_bounds,
+                        par_lower_limit=lower_bounds,
+                        par_upper_limit=upper_bounds,
+                        number_of_restarts=20,
+                        number_of_simulations=20000,
+                        number_of_processes=4,
+                        random_number_seed=443,
+                        max_major_iter=100,
+                        evaluation_type=EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ,
+                        debug=False)
+
+        optimum = results.best_solution.parameters
+        equality_function_value = eq_func(optimum)
+
+        for index, value in enumerate(optimum):
+            self.assertGreaterEqual(value, lower_bounds[index])
+            self.assertLessEqual(value, upper_bounds[index])
+
+        for index, value in enumerate(equality_function_value):
+            self.assertAlmostEqual(value, equality_bounds[index], 3)
+
+        self.assertAlmostEqual(results.best_solution.obj_value, 243.90389900772098, 8)
+
+    def test_electron_optimization_penalty_barrier_function_multiple_processes(self):
+        equality_bounds = self.electron.equality_constraint_bounds
+        upper_bounds = self.electron.parameter_upper_bound
+        lower_bounds = self.electron.parameter_lower_bound
+
+        results = solve(obj_func=obj_func,
+                        eq_func=eq_func,
+                        eq_values=equality_bounds,
+                        par_lower_limit=lower_bounds,
+                        par_upper_limit=upper_bounds,
+                        number_of_restarts=2,
+                        number_of_simulations=20000,
+                        number_of_processes=None,
+                        random_number_seed=443,
+                        max_major_iter=100,
+                        evaluation_type=EvaluationType.PENALTY_BARRIER_FUNCTION,
+                        debug=False)
+
+        optimum = results.best_solution.parameters
+        equality_function_value = eq_func(optimum)
+
+        for index, value in enumerate(optimum):
+            self.assertGreaterEqual(value, lower_bounds[index])
+            self.assertLessEqual(value, upper_bounds[index])
+
+        for index, value in enumerate(equality_function_value):
+            self.assertAlmostEqual(value, equality_bounds[index], 3)
+
+        self.assertAlmostEqual(results.best_solution.obj_value, 244.306576412278, 8)
 
 
 if __name__ == '__main__':

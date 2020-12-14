@@ -1,4 +1,5 @@
-# This is a dummy module to hold shared resources
+# This is a dummy module to hold resources that can be shared across processes
+# It will be reloaded in each run of pygosolnp
 
 par_lower_limit = None
 par_upper_limit = None
@@ -23,3 +24,5 @@ pysolnp_tolerance = None
 pysolnp_debug = None
 evaluation_type = None
 number_of_parameters = None
+eval_results = None
+restart_results = None

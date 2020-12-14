@@ -8,6 +8,16 @@ from math import sqrt
 # Distribution of Electrons on a Sphere
 # See https://www.mcs.anl.gov/~more/cops/cops3.pdf
 
+def obj_func(data):
+    electron = Electron(number_of_charges=25)
+    return electron.objective_function(data=data)
+
+
+def eq_func(data):
+    electron = Electron(number_of_charges=25)
+    return electron.equality_function(data=data)
+
+
 class Electron:
     def __init__(self, number_of_charges):
         self.__number_of_charges = number_of_charges

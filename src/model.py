@@ -67,10 +67,6 @@ class ProblemModel:
         return self.__number_of_simulations
 
     @property
-    def number_of_samples(self) -> int:
-        return self.__number_of_restarts * self.__number_of_simulations
-
-    @property
     def ineq_func(self) -> Callable:
         return self.__ineq_func
 
@@ -81,6 +77,10 @@ class ProblemModel:
     @property
     def par_upper_limit(self) -> Union[List, Array]:
         return self.__par_upper_limit
+
+    @property
+    def eq_func(self) -> Callable:
+        return self.__eq_func
 
     @property
     def eq_values(self) -> Union[List, Array]:
@@ -123,12 +123,19 @@ class ProblemModel:
         return self.__evaluation_type
 
     @property
-    def number_of_simulations(self) -> int:
-        return self.__number_of_simulations
-
-    @property
     def number_of_parameters(self) -> int:
         return len(self.__par_lower_limit)
+
+    @property
+    def has_eq_bounds(self) -> bool:
+        return self.__eq_func is not None and \
+               self.__eq_values is not None
+
+    @property
+    def has_ineq_bounds(self) -> bool:
+        return self.__ineq_func is not None and \
+               self.__ineq_lower_bounds is not None and \
+               self.__ineq_upper_bounds is not None
 
     def validate(self):
         if type(self.__par_lower_limit) is not list or type(self.__par_upper_limit) is not list:
@@ -163,4 +170,3 @@ class ProblemModel:
                 return False
 
         return True
-
