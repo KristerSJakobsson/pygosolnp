@@ -32,7 +32,7 @@ class ProblemModel:
                  number_of_processes: Optional[int] = 5,
                  random_number_distribution: Optional[List[Distribution]] = None,
                  random_number_seed: Optional[int] = None,
-                 evaluation_type: EvaluationType = EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ):
+                 evaluation_type: Union[EvaluationType, int] = EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ):
         self.__obj_func = obj_func
         self.__par_lower_limit = par_lower_limit
         self.__par_upper_limit = par_upper_limit
@@ -52,7 +52,7 @@ class ProblemModel:
         self.__number_of_processes = number_of_processes
         self.__random_number_distribution = random_number_distribution
         self.__random_number_seed = random_number_seed
-        self.__evaluation_type = evaluation_type
+        self.__evaluation_type = EvaluationType(evaluation_type)
 
     @property
     def obj_func(self):

@@ -3,7 +3,7 @@ from ctypes import c_int, c_double, c_bool
 from functools import reduce
 from heapq import nsmallest
 from multiprocessing import Array, Value, Pool
-from typing import Callable, List, Optional, Iterable
+from typing import Callable, List, Optional, Iterable, Union
 
 from numpy.random import Generator, MT19937
 
@@ -59,7 +59,7 @@ def solve(obj_func: Callable,
           number_of_processes: Optional[int] = None,
           random_number_distribution: Optional[List[Distribution]] = None,
           random_number_seed: Optional[int] = None,
-          evaluation_type: EvaluationType = EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ) -> Results:
+          evaluation_type: Union[EvaluationType, int] = EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ) -> Results:
     model = ProblemModel(obj_func=obj_func,
                          par_lower_limit=par_lower_limit,
                          par_upper_limit=par_upper_limit,
