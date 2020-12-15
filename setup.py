@@ -19,6 +19,7 @@ setuptools.setup(
     url='https://github.com/KristerSJakobsson/pygosolnp',
     license='Boost Software License',
     packages=setuptools.find_packages(),
+    install_requires=["pysolnp", "numpy"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
