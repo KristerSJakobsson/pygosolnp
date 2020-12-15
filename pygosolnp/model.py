@@ -1,8 +1,8 @@
 from enum import Enum
 from multiprocessing import Array
-from typing import Callable, List, Optional, Union, Any
+from typing import Callable, Optional, Union, List
 
-from src.sampling import Distribution
+from pygosolnp.sampling import Distribution
 
 
 class EvaluationType(Enum):

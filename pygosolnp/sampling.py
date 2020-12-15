@@ -1,5 +1,5 @@
 import abc
-from typing import List, Optional
+from typing import Optional, List, Union
 
 from numpy.random import Generator
 
@@ -47,7 +47,7 @@ class Sampling:
 
     def generate_samples(self, number_of_samples: int) -> List[float]:
         sample_size = len(self.__sample_properties)
-        samples = [None] * number_of_samples * sample_size
+        samples : List[Union[float, None]] = [None] * number_of_samples * sample_size
         for sample_index in range(number_of_samples):
             for variable_index, distribution in enumerate(self.__sample_properties):
                 samples[sample_index * sample_size + variable_index] = distribution.generate(generator=self.__generator)

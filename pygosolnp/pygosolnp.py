@@ -3,13 +3,13 @@ from ctypes import c_int, c_double, c_bool
 from functools import reduce
 from heapq import nsmallest
 from multiprocessing import Array, Value, Pool
-from typing import Callable, List, Optional, Iterable, Union
+from typing import Callable, List, Optional, Iterable, Union, List
 
 from numpy.random import Generator, MT19937
 
-from src.evaluation_functions import evaluate_starting_guess, pysolnp_solve, initialize_worker_process_resources
-from src.model import ProblemModel, EvaluationType
-from src.sampling import Distribution, Sampling
+from pygosolnp.evaluation_functions import evaluate_starting_guess, pysolnp_solve, initialize_worker_process_resources
+from pygosolnp.model import ProblemModel, EvaluationType
+from pygosolnp.sampling import Distribution, Sampling
 
 Result = namedtuple(typename="Result", field_names=("parameters", "obj_value", "converged"))
 
@@ -33,7 +33,7 @@ class Results:
         return self.__starting_guesses
 
 
-def get_best_solutions(results: Iterable, number_of_results: int):
+def __get_best_solutions(results: Iterable, number_of_results: int):
     result = nsmallest(n=number_of_results,
                        iterable=enumerate(results),
                        key=lambda value: value[1])
@@ -136,7 +136,7 @@ def solve(obj_func: Callable,
 
             pool.map(evaluate_starting_guess, range(model.number_of_simulations))
 
-            best_solutions = get_best_solutions(results=eval_results, number_of_results=model.number_of_restarts)
+            best_solutions = __get_best_solutions(results=eval_results, number_of_results=model.number_of_restarts)
             solve_guess_indices = [index for index, value in best_solutions]
             # The found optimums are stored in parameter_guesses
             pool.starmap(pysolnp_solve, enumerate(solve_guess_indices))
@@ -170,7 +170,7 @@ def solve(obj_func: Callable,
         for index in range(model.number_of_simulations):
             evaluate_starting_guess(simulation_index=index)
 
-        best_solutions = get_best_solutions(results=eval_results, number_of_results=model.number_of_restarts)
+        best_solutions = __get_best_solutions(results=eval_results, number_of_results=model.number_of_restarts)
         solve_guess_indices = [index for index, value in best_solutions]
         # The found optimums are stored in parameter_guesses
         for solve_index, guess_index in enumerate(solve_guess_indices):

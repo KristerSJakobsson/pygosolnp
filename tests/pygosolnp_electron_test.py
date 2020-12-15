@@ -1,7 +1,7 @@
 import unittest
 
-from src.benchmarks.electron import Electron, obj_func, eq_func
-from src.pygosolnp import solve, EvaluationType
+from pygosolnp.benchmarks.electron import Electron, obj_func, eq_func
+from pygosolnp.pygosolnp import solve, EvaluationType
 
 
 class TestPygosolnpElectron(unittest.TestCase):

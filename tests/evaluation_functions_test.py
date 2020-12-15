@@ -1,12 +1,12 @@
 import unittest
 
-from src.evaluation_functions import penalty_barrier_function
+from pygosolnp.evaluation_functions import penalty_barrier_function
 
 
 class TestUtilityFunctions(unittest.TestCase):
 
     def test_penalty_barrier_function(self):
-        # Use the alkyla function from pysolnp benchmarks to test lagrangian function
+        # Use the alkyla function from pysolnp benchmarks to tests lagrangian function
         def alkyla_objective_function(x):
             result = -0.63 * x[3] * x[6] + 50.4 * x[0] + 3.5 * x[1] + x[2] + 33.6 * x[4]
             return result

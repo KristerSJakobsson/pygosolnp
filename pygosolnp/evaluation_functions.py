@@ -1,10 +1,10 @@
-import multiprocessing
-import pysolnp
-from typing import List, Union, Any
 from ctypes import c_long, c_bool, c_double, c_int
+from typing import Any
 
-from src.model import EvaluationType
-from src import resources
+import pysolnp
+
+from pygosolnp import resources
+from pygosolnp.model import EvaluationType
 
 
 def initialize_worker_process_resources(obj_func,
