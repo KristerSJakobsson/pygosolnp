@@ -55,8 +55,8 @@ class TestPygosolnpElectron(unittest.TestCase):
                         number_of_restarts=20,
                         number_of_simulations=20000,
                         number_of_processes=None,
-                        random_number_seed=443,
-                        max_major_iter=100,
+                        seed_or_generator=443,
+                        pysolnp_max_major_iter=100,
                         evaluation_type=EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ,
                         debug=False)
 
@@ -87,8 +87,8 @@ class TestPygosolnpElectron(unittest.TestCase):
                         number_of_restarts=2,
                         number_of_simulations=20000,
                         number_of_processes=None,
-                        random_number_seed=443,
-                        max_major_iter=100,
+                        seed_or_generator=443,
+                        pysolnp_max_major_iter=100,
                         evaluation_type=EvaluationType.PENALTY_BARRIER_FUNCTION,
                         debug=False)
 
@@ -117,8 +117,8 @@ class TestPygosolnpElectron(unittest.TestCase):
                         number_of_restarts=20,
                         number_of_simulations=20000,
                         number_of_processes=4,
-                        random_number_seed=443,
-                        max_major_iter=100,
+                        seed_or_generator=443,
+                        pysolnp_max_major_iter=100,
                         evaluation_type=EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ,
                         debug=False)
 
@@ -147,8 +147,8 @@ class TestPygosolnpElectron(unittest.TestCase):
                         number_of_restarts=2,
                         number_of_simulations=20000,
                         number_of_processes=None,
-                        random_number_seed=443,
-                        max_major_iter=100,
+                        seed_or_generator=443,
+                        pysolnp_max_major_iter=100,
                         evaluation_type=EvaluationType.PENALTY_BARRIER_FUNCTION,
                         debug=False)
 
@@ -163,7 +163,3 @@ class TestPygosolnpElectron(unittest.TestCase):
             self.assertAlmostEqual(value, equality_bounds[index], 3)
 
         self.assertAlmostEqual(results.best_solution.obj_value, 244.306576412278, 8)
-
-
-if __name__ == '__main__':
-    unittest.main()

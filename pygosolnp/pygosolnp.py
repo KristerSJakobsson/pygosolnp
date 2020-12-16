@@ -3,9 +3,9 @@ from ctypes import c_int, c_double, c_bool
 from functools import reduce
 from heapq import nsmallest
 from multiprocessing import Array, Value, Pool
-from typing import Callable, List, Optional, Iterable, Union, List
+from typing import Callable, Optional, Union, List
 
-from numpy.random import Generator, MT19937
+from numpy.random import Generator, PCG64
 
 from pygosolnp.evaluation_functions import evaluate_starting_guess, pysolnp_solve, initialize_worker_process_resources
 from pygosolnp.model import ProblemModel, EvaluationType
@@ -15,51 +15,64 @@ Result = namedtuple(typename="Result", field_names=("parameters", "obj_value", "
 
 
 class Results:
-    def __init__(self, solutions: Iterable[Result], starting_guesses: List[float]):
-        self.__solutions = solutions
+    def __init__(self, results: List[Result], starting_guesses: List[float]):
+        self.__results = results
         self.__starting_guesses = starting_guesses
 
-    @property
-    def all_solutions(self) -> Iterable[Result]:
-        return self.__solutions
+    def __str__(self):
+        return f"Results(all_results={self.all_results}, best_solution={self.best_solution}, starting_guesses={self.starting_guesses})"
 
     @property
-    def best_solution(self):
-        viable_solutions = [solution for solution in self.__solutions if solution.converged]
+    def all_results(self) -> List[Result]:
+        return self.__results
+
+    @property
+    def best_solution(self) -> Optional[Result]:
+        viable_solutions = [solution for solution in self.__results if solution.converged]
+        if len(viable_solutions) == 0:
+            return None
         return reduce(lambda first, second: first if first.obj_value < second.obj_value else second, viable_solutions)
 
     @property
-    def starting_guesses(self) -> Iterable[float]:
+    def starting_guesses(self) -> List[float]:
         return self.__starting_guesses
 
 
-def __get_best_solutions(results: Iterable, number_of_results: int):
+def __get_best_solutions(results: List, number_of_results: int):
     result = nsmallest(n=number_of_results,
                        iterable=enumerate(results),
                        key=lambda value: value[1])
     return result
 
 
+def __debug_message_eval_functions(model: ProblemModel, eval_results: Union[Array, List]):
+    number_of_failed_evaluations = sum((1 if value == float("inf") else 0) for value in eval_results)
+    print(
+        f"Out of {model.number_of_evaluations} evaluations {number_of_failed_evaluations} failed or returned infinity for evaluation function {model.evaluation_type.name}. Check for issues with your problem definition or try changing the evaluation function.")
+
+
 def solve(obj_func: Callable,
           par_lower_limit: List[float],
           par_upper_limit: List[float],
-          number_of_restarts: int,
-          number_of_simulations: int,
           eq_func: Optional[Callable] = None,
           eq_values: Optional[List[float]] = None,
           ineq_func: Optional[Callable] = None,
           ineq_lower_bounds: Optional[List[float]] = None,
           ineq_upper_bounds: Optional[List[float]] = None,
-          rho: float = 1.0,
-          max_major_iter: int = 10,
-          max_minor_iter: int = 10,
-          delta: float = 1e-05,
-          tolerance: float = 0.0001,
-          debug: bool = False,
+          number_of_restarts: int = 1,
+          number_of_simulations: int = 20000,
           number_of_processes: Optional[int] = None,
           random_number_distribution: Optional[List[Distribution]] = None,
-          random_number_seed: Optional[int] = None,
-          evaluation_type: Union[EvaluationType, int] = EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ) -> Results:
+          seed_or_generator: Union[None, int, Generator] = None,
+          evaluation_type: Union[EvaluationType, int] = EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ,
+          pysolnp_rho: float = 1.0,
+          pysolnp_max_major_iter: int = 10,
+          pysolnp_max_minor_iter: int = 10,
+          pysolnp_delta: float = 1e-05,
+          pysolnp_tolerance: float = 0.0001,
+          debug: bool = False) -> Results:
+
+    # Represent the problem with the below object
     model = ProblemModel(obj_func=obj_func,
                          par_lower_limit=par_lower_limit,
                          par_upper_limit=par_upper_limit,
@@ -70,25 +83,32 @@ def solve(obj_func: Callable,
                          ineq_func=ineq_func,
                          ineq_lower_bounds=ineq_lower_bounds,
                          ineq_upper_bounds=ineq_upper_bounds,
-                         rho=rho,
-                         max_major_iter=max_major_iter,
-                         max_minor_iter=max_minor_iter,
-                         delta=delta,
-                         tolerance=tolerance,
+                         rho=pysolnp_rho,
+                         max_major_iter=pysolnp_max_major_iter,
+                         max_minor_iter=pysolnp_max_minor_iter,
+                         delta=pysolnp_delta,
+                         tolerance=pysolnp_tolerance,
                          debug=debug,
                          number_of_processes=number_of_processes,
                          random_number_distribution=random_number_distribution,
-                         random_number_seed=random_number_seed,
                          evaluation_type=evaluation_type)
 
-    generator = Generator(MT19937(random_number_seed))
+    # Validate the inputs for the problem model
+    model.validate()
+
+    # Create generator for random numbers
+    if type(seed_or_generator) is Generator:
+        generator = seed_or_generator
+    else:
+        generator = Generator(PCG64(seed_or_generator))
+
+    # Generate samples using the Sampling object
     sampling = Sampling(lower_bounds=par_lower_limit,
                         upper_bounds=par_upper_limit,
                         sample_properties=random_number_distribution,
                         generator=generator)
 
-    parameter_guesses = sampling.generate_samples(
-        number_of_samples=model.number_of_simulations)  # Pre-allocate memory for the guesses
+    parameter_guesses = sampling.generate_samples(number_of_samples=model.number_of_evaluations)
 
     if number_of_processes:
         par_lower_limit = Array(c_double, model.par_lower_limit, lock=False)
@@ -106,8 +126,9 @@ def solve(obj_func: Callable,
         number_of_parameters = Value(c_int, model.number_of_parameters, lock=False)
 
         parameter_guesses = Array(c_double, parameter_guesses, lock=False)
-        eval_results = Array(c_double, model.number_of_simulations)  # Results from the eval function
-        restart_results = Array(c_double, model.number_of_simulations * model.number_of_parameters) # Results from pysolnp restarts
+        eval_results = Array(c_double, model.number_of_evaluations)  # Results from the eval function
+        restart_results = Array(c_double,
+                                model.number_of_restarts * model.number_of_parameters)  # Results from pysolnp restarts
 
         initargs = (
             obj_func,
@@ -134,16 +155,19 @@ def solve(obj_func: Callable,
                   initializer=initialize_worker_process_resources,
                   initargs=initargs) as pool:
 
-            pool.map(evaluate_starting_guess, range(model.number_of_simulations))
+            pool.map(evaluate_starting_guess, range(model.number_of_evaluations))
 
-            best_solutions = __get_best_solutions(results=eval_results, number_of_results=model.number_of_restarts)
-            solve_guess_indices = [index for index, value in best_solutions]
+            if debug is True:
+                __debug_message_eval_functions(model=model, eval_results=eval_results)
+
+            best_evaluations = __get_best_solutions(results=eval_results, number_of_results=model.number_of_restarts)
+            solve_guess_indices = [index for index, value in best_evaluations]
             # The found optimums are stored in parameter_guesses
             pool.starmap(pysolnp_solve, enumerate(solve_guess_indices))
 
     else:
-        eval_results = [None] * model.number_of_simulations
-        restart_results = [None] * model.number_of_simulations * model.number_of_restarts
+        eval_results = [None] * model.number_of_evaluations
+        restart_results = [None] * model.number_of_restarts * model.number_of_parameters
 
         initialize_worker_process_resources(
             obj_func=obj_func,
@@ -167,11 +191,14 @@ def solve(obj_func: Callable,
             restart_results=restart_results
         )
 
-        for index in range(model.number_of_simulations):
+        for index in range(model.number_of_evaluations):
             evaluate_starting_guess(simulation_index=index)
 
-        best_solutions = __get_best_solutions(results=eval_results, number_of_results=model.number_of_restarts)
-        solve_guess_indices = [index for index, value in best_solutions]
+        if debug is True:
+            __debug_message_eval_functions(model=model, eval_results=eval_results)
+
+        best_evaluations = __get_best_solutions(results=eval_results, number_of_results=model.number_of_restarts)
+        solve_guess_indices = [index for index, value in best_evaluations]
         # The found optimums are stored in parameter_guesses
         for solve_index, guess_index in enumerate(solve_guess_indices):
             pysolnp_solve(solve_index=solve_index, guess_index=guess_index)
@@ -181,12 +208,12 @@ def solve(obj_func: Callable,
                  index in range(model.number_of_restarts)]
 
     # Each Result represents a solution to the restart (might have not converged)
-    best_solutions = [
+    all_results = [
         Result(parameters=solution, obj_value=obj_func(solution), converged=model.check_solution_feasibility(solution))
         for solution in solutions]
 
     # pysolnp might have not converged for some solution, if no converging solutions exist, print an warning message.
-    if len([solution for solution in best_solutions if solution.converged]) == 0:
+    if len([solution for solution in all_results if solution.converged]) == 0:
         print(f"Not able to find any feasible solution in {number_of_restarts} restarts.")
 
-    return Results(solutions=best_solutions, starting_guesses=parameter_guesses)
+    return Results(results=all_results, starting_guesses=parameter_guesses)

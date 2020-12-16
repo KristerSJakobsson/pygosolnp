@@ -31,7 +31,6 @@ class ProblemModel:
                  debug: bool = False,
                  number_of_processes: Optional[int] = 5,
                  random_number_distribution: Optional[List[Distribution]] = None,
-                 random_number_seed: Optional[int] = None,
                  evaluation_type: Union[EvaluationType, int] = EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ):
         self.__obj_func = obj_func
         self.__par_lower_limit = par_lower_limit
@@ -51,7 +50,6 @@ class ProblemModel:
         self.__debug = debug
         self.__number_of_processes = number_of_processes
         self.__random_number_distribution = random_number_distribution
-        self.__random_number_seed = random_number_seed
         self.__evaluation_type = EvaluationType(evaluation_type)
 
     @property
@@ -63,7 +61,7 @@ class ProblemModel:
         return self.__number_of_restarts
 
     @property
-    def number_of_simulations(self) -> int:
+    def number_of_evaluations(self) -> int:
         return self.__number_of_simulations
 
     @property
@@ -138,16 +136,91 @@ class ProblemModel:
                self.__ineq_upper_bounds is not None
 
     def validate(self):
-        if type(self.__par_lower_limit) is not list or type(self.__par_upper_limit) is not list:
-            raise ValueError("Parameter lower and upper bounds are required for gosolnp")
+        mandatory_data = [self.__obj_func, self.__par_lower_limit, self.__par_upper_limit]
+        if any(data is None for data in mandatory_data):
+            raise ValueError(
+                "obj_func, par_lower_limit and par_upper_limit are required for pygosolnp to function")
+
+        if not callable(self.__obj_func):
+            raise ValueError("obj_func must be callable")
+
+        if not hasattr(self.__par_lower_limit, '__len__'):
+            raise ValueError("par_lower_limit does not have a fixed length, is it an list or array?")
+
+        if not hasattr(self.__par_upper_limit, '__len__'):
+            raise ValueError("par_upper_limit does not have a fixed length, is it an list or array?")
 
         if len(self.__par_lower_limit) != len(self.__par_upper_limit):
-            raise ValueError("The length of lower and upper bounds are not the same")
+            raise ValueError("par_lower_limit and par_upper_limit bounds are not of the same length")
 
-        if type(self.__random_number_distribution) is list and len(self.__random_number_distribution) != len(
-                self.__par_lower_limit):
+        if hasattr(self.__random_number_distribution, '__len__') and \
+                len(self.__random_number_distribution) != len(self.__par_lower_limit):
             raise ValueError(
-                "random_number_distribution input must be either one distribution or an array of distributions.")
+                "random_number_distribution input must be either None or an array of distributions with the same length as par_lower_limit and par_upper_limit")
+
+        eq_data = [self.__eq_func, self.__eq_values]
+        if not (all(data is None for data in eq_data) or all(data is not None for data in eq_data)):
+            raise ValueError(
+                "For equality constrained problems, please provide both eq_func and eq_values, or alternatively set both to None if not applicable")
+
+        if self.__eq_func is not None and not callable(self.__eq_func):
+            raise ValueError("For equality constrained problems, please supply a callable eq_func")
+
+        if self.__eq_values is not None and not hasattr(self.__eq_values, '__len__'):
+            raise ValueError("For equality constrained problems, please supply an fixed-length eq_values")
+
+        ineq_data = [self.__ineq_func, self.__ineq_lower_bounds, self.__ineq_upper_bounds]
+        if not (all(data is None for data in ineq_data) or all(data is not None for data in ineq_data)):
+            raise ValueError(
+                "For inequality constrained problems, please provide ineq_func, ineq_lower_bound and ineq_upper_bounds, or alternatively set all to None if not applicable")
+
+        if self.__ineq_func is not None and not callable(self.__ineq_func):
+            raise ValueError("For inequality constrained problems, please supply a callable ineq_func")
+
+        if self.__ineq_lower_bounds is not None and not hasattr(self.__ineq_lower_bounds, '__len__'):
+            raise ValueError("For inequality constrained problems, please supply an fixed-length ineq_lower_bounds")
+
+        if self.__ineq_upper_bounds is not None and not hasattr(self.__ineq_upper_bounds, '__len__'):
+            raise ValueError("For inequality constrained problems, please supply an fixed-length ineq_upper_bounds")
+
+        if (self.__ineq_lower_bounds is not None) and (self.__ineq_upper_bounds is not None) and (
+                len(self.__ineq_lower_bounds) != len(self.__ineq_upper_bounds)):
+            raise ValueError(
+                "For inequality constrained problems, please make sure that ineq_lower_bound is of the same length as ineq_upper_bound")
+
+        if self.__number_of_simulations < 1:
+            raise ValueError("number_of_simulations needs to be a positive integer value")
+
+        if self.__number_of_restarts < 1:
+            raise ValueError("number_of_restarts needs to be a positive integer value")
+
+        if self.__number_of_processes is not None and self.__number_of_processes < 1:
+            raise ValueError(
+                "number_of_processes needs to be a positive integer value and is recommended to be greater than or equal to 2")
+
+        if type(self.__rho) is not float:
+            raise ValueError("pysolnp_rho needs to be a float value")
+
+        if type(self.__max_major_iter) is not int:
+            raise ValueError("pysolnp_max_major_iter needs to be a int value")
+
+        if self.__max_major_iter <= 0:
+            raise ValueError("pysolnp_max_major_iter needs to be a positive value")
+
+        if type(self.__max_minor_iter) is not int:
+            raise ValueError("pysolnp_max_minor_iter needs to be a int value")
+
+        if self.__max_minor_iter <= 0:
+            raise ValueError("pysolnp_max_minor_iter needs to be a positive value")
+
+        if type(self.__delta) is not float:
+            raise ValueError("pysolnp_delta needs to be a float value")
+
+        if type(self.__tolerance) is not float:
+            raise ValueError("pysolnp_tolerance needs to be a float value")
+
+        if type(self.__debug) is not bool:
+            raise ValueError("debug needs to be a boolean value")
 
     def check_solution_feasibility(self, par_found_solution):
         if any(value < self.__par_lower_limit[index] - self.__tolerance or self.__par_upper_limit[

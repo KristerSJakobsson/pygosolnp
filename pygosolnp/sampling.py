@@ -42,12 +42,13 @@ class Sampling:
         if type(sample_properties) is list:
             self.__sample_properties = sample_properties
         else:
-            default_sample_properties = [UniformDistribution(lower=lower, upper=upper) for lower, upper in zip(lower_bounds, upper_bounds)]
+            default_sample_properties = [UniformDistribution(lower=lower, upper=upper) for lower, upper in
+                                         zip(lower_bounds, upper_bounds)]
             self.__sample_properties = default_sample_properties
 
     def generate_samples(self, number_of_samples: int) -> List[float]:
         sample_size = len(self.__sample_properties)
-        samples : List[Union[float, None]] = [None] * number_of_samples * sample_size
+        samples: List[Union[float, None]] = [None] * number_of_samples * sample_size
         for sample_index in range(number_of_samples):
             for variable_index, distribution in enumerate(self.__sample_properties):
                 samples[sample_index * sample_size + variable_index] = distribution.generate(generator=self.__generator)

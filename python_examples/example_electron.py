@@ -42,10 +42,10 @@ results = pygosolnp.solve(
     number_of_restarts=4,
     number_of_simulations=20000,
     number_of_processes=None,
-    random_number_seed=443,
-    max_major_iter=100,
+    seed_or_generator=443,
+    pysolnp_max_major_iter=100,
     evaluation_type=pygosolnp.EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ,
     debug=False)
 
-print(results.all_solutions)
+print(results.all_results)
 print(results.best_solution)

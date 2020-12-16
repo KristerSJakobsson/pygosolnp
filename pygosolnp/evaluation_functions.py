@@ -132,12 +132,12 @@ def evaluate_starting_guess(simulation_index: int):
 
         eval_func = eval_objective_function[eval_type]
         eval_result = eval_func(variables=guesses[start_index: end_index],
-                                     obj_func=__resource_value(resources.obj_func),
-                                     eq_func=__resource_value(resources.eq_func),
-                                     eq_values=__resource_value(resources.eq_values),
-                                     ineq_func=__resource_value(resources.ineq_func),
-                                     ineq_lower_bounds=__resource_value(resources.ineq_lower_bounds),
-                                     ineq_upper_bounds=__resource_value(resources.ineq_upper_bounds))
+                                obj_func=__resource_value(resources.obj_func),
+                                eq_func=__resource_value(resources.eq_func),
+                                eq_values=__resource_value(resources.eq_values),
+                                ineq_func=__resource_value(resources.ineq_func),
+                                ineq_lower_bounds=__resource_value(resources.ineq_lower_bounds),
+                                ineq_upper_bounds=__resource_value(resources.ineq_upper_bounds))
         resources.eval_results[simulation_index] = eval_result
     except Exception as ex:
         resources.eval_results[simulation_index] = float("inf")

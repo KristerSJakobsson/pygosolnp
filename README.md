@@ -81,13 +81,13 @@ results = pygosolnp.solve(
     number_of_restarts=2,
     number_of_simulations=200,
     number_of_processes=None,
-    random_number_seed=443,
-    max_major_iter=100,
+    seed_or_generator=443,
+    pysolnp_max_major_iter=100,
     evaluation_type=pygosolnp.EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ,
     debug=False)
 
-all_solutions = results.all_solutions
-print("; ".join([f"Solution {index + 1}: {solution.obj_value}" for index, solution in enumerate(all_solutions)]))
+all_results = results.all_results
+print("; ".join([f"Solution {index + 1}: {solution.obj_value}" for index, solution in enumerate(all_results)]))
 best_solution = results.best_solution
 print(f"Best solution {best_solution.obj_value} for parameters {best_solution.parameters}.")
 ```
@@ -104,47 +104,49 @@ The basic signature is:
 pygosolnp.solve(obj_func: Callable,
                 par_lower_limit: List[float],
                 par_upper_limit: List[float],
-                number_of_restarts: int,
-                number_of_simulations: int,
                 eq_func: Optional[Callable] = None,
                 eq_values: Optional[List[float]] = None,
                 ineq_func: Optional[Callable] = None,
                 ineq_lower_bounds: Optional[List[float]] = None,
                 ineq_upper_bounds: Optional[List[float]] = None,
-                rho: float = 1.0,
-                max_major_iter: int = 10,
-                max_minor_iter: int = 10,
-                delta: float = 1e-05,
-                tolerance: float = 0.0001,
-                debug: bool = False,
+                number_of_restarts: int = 1,
+                number_of_simulations: int = 20000,
                 number_of_processes: Optional[int] = None,
                 random_number_distribution: Optional[List[Distribution]] = None,
-                random_number_seed: Optional[int] = None,
-                evaluation_type: Union[EvaluationType, int] = EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ) -> Results
+                seed_or_generator: Union[None, int, Generator] = None,
+                evaluation_type: Union[EvaluationType, int] = EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ,
+                pysolnp_rho: float = 1.0,
+                pysolnp_max_major_iter: int = 10,
+                pysolnp_max_minor_iter: int = 10,
+                pysolnp_delta: float = 1e-05,
+                pysolnp_tolerance: float = 0.0001,
+                debug: bool = False) -> Results
 ```
 
 Inputs:
 
-| Parameter                  | Type                         | Default value*                             | Description                                                                                                                             |
-| ---------------------------|:-----------------------------|:-------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| obj_func                   | Callable\[List, float\]      | -                                          | The objective function f(x) to minimize.                                                                                                |
-| par_lower_limit            | List                         | None                                       | The parameter lower limit x_l.                                                                                                          |
-| par_upper_limit            | List                         | None                                       | The parameter upper limit x_u.                                                                                                          |
-| eq_func                    | Callable\[List, float\]      | None                                       | The equality constraint function h(x).                                                                                                  |
-| eq_values                  | List                         | None                                       | The equality constraint values e_x.                                                                                                     |
-| ineq_func                  | Callable\[List, float\]      | None                                       | The inequality constraint function g(x).                                                                                                |
-| ineq_lower_bounds          | List                         | None                                       | The inequality constraint lower limit g_l.                                                                                              |
-| ineq_upper_bounds          | List                         | None                                       | The inequality constraint upper limit g_l.                                                                                              |
-| rho                        | float                        | 1.0                                        | pysolnp parameter: Penalty weighting scalar for infeasability in the augmented objective function.**                                    |
-| max_major_iter             | int                          | 400                                        | pysolnp parameter: Maximum number of outer iterations.                                                                                  |
-| max_minor_iter             | int                          | 800                                        | pysolnp parameter: Maximum number of inner iterations.                                                                                  |
-| delta                      | float                        | 1e-07                                      | pysolnp parameter: Step-size for forward differentiation.                                                                               |
-| tolerance                  | float                        | 1e-08                                      | pysolnp parameter: Relative tolerance on optimality.                                                                                    |
-| debug                      | bool                         | False                                      | pysolnp parameter: If set to true some debug output will be printed.                                                                    |
-| number_of_processes        | int                          | None                                       | Sets how many parallell processes to run when solving the problem. If None the problem is solved in the main processes.                 |
-| random_number_distribution | List\[Distribution\]         | None                                       | A list of distributions for generating starting values, one distribution for each parameter. If None, the Uniform distribution is used. |
-| random_number_seed         | int                          | None                                       | If set to true some debug output will be printed.                                                                                       |
-| evaluation_type            | Union\[int, EvaluationType\] | EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ | Selects the evaluation type from the pygosolnp.EvaluationType enum.                                                                     |
+| Parameter                  | Type                          | Default value*                             | Description                                                                                                                             |
+| ---------------------------|:------------------------------|:-------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| obj_func                   | Callable\[List, float\]       | -                                          | The objective function f(x) to minimize.                                                                                                |
+| par_lower_limit            | List                          | -                                          | The parameter lower limit x_l.                                                                                                          |
+| par_upper_limit            | List                          | -                                          | The parameter upper limit x_u.                                                                                                          |
+| eq_func                    | Callable\[List, float\]       | None                                       | The equality constraint function h(x).                                                                                                  |
+| eq_values                  | List                          | None                                       | The equality constraint values e_x.                                                                                                     |
+| ineq_func                  | Callable\[List, float\]       | None                                       | The inequality constraint function g(x).                                                                                                |
+| ineq_lower_bounds          | List                          | None                                       | The inequality constraint lower limit g_l.                                                                                              |
+| ineq_upper_bounds          | List                          | None                                       | The inequality constraint upper limit g_l.                                                                                              |
+| number_of_restarts         | int                           | 1                                          | The `number_of_restarts` best evaluation results are used to run pysolnp `number_of_restarts` times.                                    |
+| number_of_simulations      | int                           | 20000                                      | Sets how many randomly generated starting guesses we generate and evaluate with the evaluation function.                                |
+| number_of_processes        | int                           | None                                       | Sets how many parallel processes to run when solving the problem. If None the problem is solved in the main processes.                  |
+| random_number_distribution | List\[Distribution\]          | None                                       | A list of distributions for generating starting values, one distribution for each parameter. If None, the Uniform distribution is used. |
+| seed_or_generator          | Union\[None, int, Generator\] | None                                       | By default the PCG64 Generator is used with timestamp-seed. Optionally an integer seed or a numpy.Generator can be supplied.            |
+| evaluation_type            | Union\[int, EvaluationType\]  | EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ | Selects the evaluation type from the pygosolnp.EvaluationType enum.                                                                     |
+| pysolnp_rho                | float                         | 1.0                                        | pysolnp parameter: Penalty weighting scalar for infeasability in the augmented objective function.**                                    |
+| pysolnp_max_major_iter     | int                           | 400                                        | pysolnp parameter: Maximum number of outer iterations.                                                                                  |
+| pysolnp_max_minor_iter     | int                           | 800                                        | pysolnp parameter: Maximum number of inner iterations.                                                                                  |
+| pysolnp_delta              | float                         | 1e-07                                      | pysolnp parameter: Step-size for forward differentiation.                                                                               |
+| pysolnp_tolerance          | float                         | 1e-08                                      | pysolnp parameter: Relative tolerance on optimality.                                                                                    |
+| debug                      | bool                          | False                                      | If set to true some debug output will be printed.                                                                    |
 
 *Defaults for configuration parameters are based on the defaults for Rsolnp.<br>
 **Higher values means the solution will bring the solution into the feasible region with higher weight. Very high values might lead to numerical ill conditioning or slow down convergence.
@@ -152,11 +154,11 @@ Inputs:
 Output:
 The function returns the `pygosolnp.Results` with the below properties.
 
-| Property           | Type           | Description                                           |
-| -------------------|:---------------|-------------------------------------------------------|
-| best_solution      | Result         | The best local optimum found for the problem.         |
-| all_solutions      | List\[Result\] | All restarts and their corresponding local optimum.   |
-| starting_guesses   | List\[float\]  | All the randomized starting parameters.               |
+| Property           | Type               | Description                                           |
+| -------------------|:-------------------|-------------------------------------------------------|
+| best_solution      | Optional\[Result\] | The best local optimum found for the problem.         |
+| all_results        | List\[Result\]     | All restarts and their corresponding local optimum.   |
+| starting_guesses   | List\[float\]      | All the randomized starting parameters.               |
 
 Each named tuple `pygosolnp.Result` has the below properties.
 
