@@ -2,14 +2,21 @@ language: python
 
 python:
   - "3.7"
-
+install:
+  - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
+  - pip install .
 script:
-  - pytest
+  - pytest --cov-report=xml --cov=pygosolnp tests/
+
+after_success:
+  - codecov
 
 deploy:
   provider: pypi
-  user: ...
-  password:
-    secure: ...
+  user: __token__
+  password: $TEST_PYPI_TOKEN
+  distributions: "sdist bdist_wheel"
+  skip_existing: true
   on:
     branch: release

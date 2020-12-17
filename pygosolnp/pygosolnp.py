@@ -5,11 +5,9 @@ from heapq import nsmallest
 from multiprocessing import Array, Value, Pool
 from typing import Callable, Optional, Union, List
 
-from numpy.random import Generator, PCG64
-
 from pygosolnp.evaluation_functions import evaluate_starting_guess, pysolnp_solve, initialize_worker_process_resources
 from pygosolnp.model import ProblemModel, EvaluationType
-from pygosolnp.sampling import Distribution, Sampling
+from pygosolnp.sampling import Distribution, Sampling, DefaultSampling
 
 Result = namedtuple(typename="Result", field_names=("parameters", "obj_value", "converged"))
 
@@ -38,7 +36,7 @@ class Results:
         return self.__starting_guesses
 
 
-def __get_best_solutions(results: List, number_of_results: int):
+def __get_best_solutions(results: Union[List, Array], number_of_results: int):
     result = nsmallest(n=number_of_results,
                        iterable=enumerate(results),
                        key=lambda value: value[1])
@@ -62,8 +60,8 @@ def solve(obj_func: Callable,
           number_of_restarts: int = 1,
           number_of_simulations: int = 20000,
           number_of_processes: Optional[int] = None,
-          random_number_distribution: Optional[List[Distribution]] = None,
-          seed_or_generator: Union[None, int, Generator] = None,
+          start_guess_sampling: Union[None, List[Distribution], Sampling] = None,
+          seed: Union[None, int] = None,
           evaluation_type: Union[EvaluationType, int] = EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ,
           pysolnp_rho: float = 1.0,
           pysolnp_max_major_iter: int = 10,
@@ -90,25 +88,31 @@ def solve(obj_func: Callable,
                          tolerance=pysolnp_tolerance,
                          debug=debug,
                          number_of_processes=number_of_processes,
-                         random_number_distribution=random_number_distribution,
+                         start_guess_sampling=start_guess_sampling,
                          evaluation_type=evaluation_type)
 
     # Validate the inputs for the problem model
     model.validate()
 
-    # Create generator for random numbers
-    if type(seed_or_generator) is Generator:
-        generator = seed_or_generator
+    if start_guess_sampling is None or type(start_guess_sampling) is List:
+        # Generate samples using the DefaultSampling object
+        sampling = DefaultSampling(parameter_lower_bounds=par_lower_limit,
+                                   parameter_upper_bounds=par_upper_limit,
+                                   sample_properties=start_guess_sampling,
+                                   seed=seed)
     else:
-        generator = Generator(PCG64(seed_or_generator))
+        if seed is not None and debug is True:
+            print(f"Warning: Seed value {seed} ignored due to user sampling override")
+        # User provided Sampling instance
+        sampling = start_guess_sampling
 
-    # Generate samples using the Sampling object
-    sampling = Sampling(lower_bounds=par_lower_limit,
-                        upper_bounds=par_upper_limit,
-                        sample_properties=random_number_distribution,
-                        generator=generator)
+    parameter_guesses = sampling.generate_all_samples(
+        number_of_samples=model.number_of_evaluations,
+        sample_size=model.sample_size)
 
-    parameter_guesses = sampling.generate_samples(number_of_samples=model.number_of_evaluations)
+    if debug is True:
+        if sum((1 if guess is None else 0) for guess in parameter_guesses) > 0:
+            print(f"Some of the random samples provided failed to generate, is your Sampling class setup correctly?")
 
     if number_of_processes:
         par_lower_limit = Array(c_double, model.par_lower_limit, lock=False)

@@ -56,7 +56,7 @@ class TestPygosolnpInputValidation(unittest.TestCase):
             solve(obj_func=alkyla_objective_function,
                   par_lower_limit=parameter_lower_bounds,
                   par_upper_limit=parameter_upper_bounds,
-                  random_number_distribution=[NormalDistribution(1, 0.1)])
+                  start_guess_sampling=[NormalDistribution(1, 0.1)])
 
     def test_bad_eq_constraints(self):
         # Eq function without values
@@ -64,7 +64,7 @@ class TestPygosolnpInputValidation(unittest.TestCase):
             solve(obj_func=alkyla_objective_function,
                   par_lower_limit=parameter_lower_bounds,
                   par_upper_limit=parameter_upper_bounds,
-                  random_number_distribution=[NormalDistribution(1, 0.1)],
+                  start_guess_sampling=[NormalDistribution(1, 0.1)],
                   eq_func=alkyla_equality_function)
 
         # Eq values without function
@@ -72,7 +72,7 @@ class TestPygosolnpInputValidation(unittest.TestCase):
             solve(obj_func=alkyla_objective_function,
                   par_lower_limit=parameter_lower_bounds,
                   par_upper_limit=parameter_upper_bounds,
-                  random_number_distribution=[NormalDistribution(1, 0.1)],
+                  start_guess_sampling=[NormalDistribution(1, 0.1)],
                   eq_values=equality_values)
 
         # Eq func not callable without function
@@ -80,7 +80,7 @@ class TestPygosolnpInputValidation(unittest.TestCase):
             solve(obj_func=alkyla_objective_function,
                   par_lower_limit=parameter_lower_bounds,
                   par_upper_limit=parameter_upper_bounds,
-                  random_number_distribution=[NormalDistribution(1, 0.1)],
+                  start_guess_sampling=[NormalDistribution(1, 0.1)],
                   eq_func={"Not", "Callable"},
                   eq_values=equality_values)
 
@@ -89,7 +89,7 @@ class TestPygosolnpInputValidation(unittest.TestCase):
             solve(obj_func=alkyla_objective_function,
                   par_lower_limit=parameter_lower_bounds,
                   par_upper_limit=parameter_upper_bounds,
-                  random_number_distribution=[NormalDistribution(1, 0.1)],
+                  start_guess_sampling=[NormalDistribution(1, 0.1)],
                   eq_func=alkyla_equality_function,
                   eq_values=2)
 

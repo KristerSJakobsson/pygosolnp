@@ -2,7 +2,7 @@ from enum import Enum
 from multiprocessing import Array
 from typing import Callable, Optional, Union, List
 
-from pygosolnp.sampling import Distribution
+from pygosolnp.sampling import Distribution, DefaultSampling
 
 
 class EvaluationType(Enum):
@@ -30,7 +30,7 @@ class ProblemModel:
                  tolerance: float = 0.0001,
                  debug: bool = False,
                  number_of_processes: Optional[int] = 5,
-                 random_number_distribution: Optional[List[Distribution]] = None,
+                 start_guess_sampling: Union[None, List[Distribution], DefaultSampling] = None,
                  evaluation_type: Union[EvaluationType, int] = EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ):
         self.__obj_func = obj_func
         self.__par_lower_limit = par_lower_limit
@@ -49,7 +49,7 @@ class ProblemModel:
         self.__tolerance = tolerance
         self.__debug = debug
         self.__number_of_processes = number_of_processes
-        self.__random_number_distribution = random_number_distribution
+        self.__start_guess_sampling = start_guess_sampling
         self.__evaluation_type = EvaluationType(evaluation_type)
 
     @property
@@ -75,6 +75,10 @@ class ProblemModel:
     @property
     def par_upper_limit(self) -> Union[List, Array]:
         return self.__par_upper_limit
+
+    @property
+    def sample_size(self) -> int:
+        return len(self.__par_lower_limit)
 
     @property
     def eq_func(self) -> Callable:
@@ -135,6 +139,10 @@ class ProblemModel:
                self.__ineq_lower_bounds is not None and \
                self.__ineq_upper_bounds is not None
 
+    @property
+    def start_guess_sampling(self):
+        return self.__start_guess_sampling
+
     def validate(self):
         mandatory_data = [self.__obj_func, self.__par_lower_limit, self.__par_upper_limit]
         if any(data is None for data in mandatory_data):
@@ -153,10 +161,10 @@ class ProblemModel:
         if len(self.__par_lower_limit) != len(self.__par_upper_limit):
             raise ValueError("par_lower_limit and par_upper_limit bounds are not of the same length")
 
-        if hasattr(self.__random_number_distribution, '__len__') and \
-                len(self.__random_number_distribution) != len(self.__par_lower_limit):
+        if hasattr(self.__start_guess_sampling, '__len__') and \
+                len(self.__start_guess_sampling) != len(self.__par_lower_limit):
             raise ValueError(
-                "random_number_distribution input must be either None or an array of distributions with the same length as par_lower_limit and par_upper_limit")
+                "random_number_distribution input must be either None, an array of distributions with the same length as par_lower_limit and par_upper_limit or a Sampling instance")
 
         eq_data = [self.__eq_func, self.__eq_values]
         if not (all(data is None for data in eq_data) or all(data is not None for data in eq_data)):
