@@ -37,10 +37,14 @@ class Results:
 
 
 def __get_best_solutions(results: Union[List, Array], number_of_results: int):
-    result = nsmallest(n=number_of_results,
-                       iterable=enumerate(results),
-                       key=lambda value: value[1])
-    return result
+    results = nsmallest(n=number_of_results,
+                        iterable=enumerate(results),
+                        key=lambda value: value[1])
+
+    if all(result[1] == float("inf") for result in results):
+        raise ValueError("Evaluation functions could not locate any successful starting guesses.")
+
+    return results
 
 
 def __debug_message_eval_functions(model: ProblemModel, eval_results: Union[Array, List]):
@@ -69,7 +73,6 @@ def solve(obj_func: Callable,
           pysolnp_delta: float = 1e-05,
           pysolnp_tolerance: float = 0.0001,
           debug: bool = False) -> Results:
-
     # Represent the problem with the below object
     model = ProblemModel(obj_func=obj_func,
                          par_lower_limit=par_lower_limit,
@@ -94,24 +97,27 @@ def solve(obj_func: Callable,
     # Validate the inputs for the problem model
     model.validate()
 
-    if start_guess_sampling is None or type(start_guess_sampling) is List:
+    if start_guess_sampling is None or type(start_guess_sampling) is list:
         # Generate samples using the DefaultSampling object
         sampling = DefaultSampling(parameter_lower_bounds=par_lower_limit,
                                    parameter_upper_bounds=par_upper_limit,
                                    sample_properties=start_guess_sampling,
                                    seed=seed)
-    else:
+    elif isinstance(start_guess_sampling, Sampling):
         if seed is not None and debug is True:
             print(f"Warning: Seed value {seed} ignored due to user sampling override")
         # User provided Sampling instance
         sampling = start_guess_sampling
+    else:
+        raise ValueError(
+            f"Provided parameter start_guess_sampling was not of expected type. Expected None, List[Distribution] or Sampling.")
 
     parameter_guesses = sampling.generate_all_samples(
         number_of_samples=model.number_of_evaluations,
         sample_size=model.sample_size)
 
     if debug is True:
-        if sum((1 if guess is None else 0) for guess in parameter_guesses) > 0:
+        if any(guess is None for guess in parameter_guesses):
             print(f"Some of the random samples provided failed to generate, is your Sampling class setup correctly?")
 
     if number_of_processes:

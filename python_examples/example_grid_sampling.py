@@ -2,15 +2,12 @@
 # This example shows how to make your own custom distributions for use with pygosolnp
 ############################
 
-from typing import List, Optional
 from itertools import chain
+from typing import List
 
 # Scikit-optimize has a wide range of useful sampling functions, see below link
 # https://scikit-optimize.github.io/stable/auto_examples/sampler/initial-sampling-method.html
 import skopt
-
-# Numpy random has the PCG64 generator which according to some research is better than Mersenne Twister
-from numpy.random import Generator, PCG64, RandomState
 
 import pygosolnp
 
@@ -26,6 +23,8 @@ class GridSampling(pygosolnp.sampling.Sampling):
         self.__seed = seed
 
     def generate_all_samples(self, number_of_samples: int, sample_size: int) -> List[float]:
+        # Overwrite this function to define the behavior when generating starting guesses for all samples
+        # By default it calls `generate_sample` number_of_samples time
         grid = skopt.sampler.Grid()
         grid_values = grid.generate(dimensions=self.__space.dimensions,
                                     n_samples=number_of_samples,
@@ -33,6 +32,7 @@ class GridSampling(pygosolnp.sampling.Sampling):
         return list(chain.from_iterable(grid_values))
 
     def generate_sample(self, sample_size: int) -> List[float]:
+        # This function is abstract
         # Not needed since we are generating a grid for all samples
         pass
 

@@ -70,7 +70,7 @@ class TestPygosolnpElectron(unittest.TestCase):
         for index, value in enumerate(equality_function_value):
             self.assertAlmostEqual(value, equality_bounds[index], 3)
 
-        self.assertAlmostEqual(results.best_solution.obj_value, 243.92565234566914, 8)
+        self.assertAlmostEqual(results.best_solution.obj_value, 243.92615570955812, 8)
 
     def test_electron_optimization_penalty_barrier_function_single_process(self):
         objective_function = lambda x: self.electron.objective_function(x)
@@ -102,7 +102,7 @@ class TestPygosolnpElectron(unittest.TestCase):
         for index, value in enumerate(equality_function_value):
             self.assertAlmostEqual(value, equality_bounds[index], 3)
 
-        self.assertAlmostEqual(results.best_solution.obj_value, 243.9984788247747, 8)
+        self.assertAlmostEqual(results.best_solution.obj_value, 243.9490050190484, 8)
 
     def test_electron_optimization_exclude_inequalities_multiple_processes(self):
         equality_bounds = self.electron.equality_constraint_bounds
@@ -132,7 +132,7 @@ class TestPygosolnpElectron(unittest.TestCase):
         for index, value in enumerate(equality_function_value):
             self.assertAlmostEqual(value, equality_bounds[index], 3)
 
-        self.assertAlmostEqual(results.best_solution.obj_value, 243.92565234566914, 8)
+        self.assertAlmostEqual(results.best_solution.obj_value, 243.92615570955812, 8)
 
     def test_electron_optimization_penalty_barrier_function_multiple_processes(self):
         equality_bounds = self.electron.equality_constraint_bounds
@@ -162,4 +162,4 @@ class TestPygosolnpElectron(unittest.TestCase):
         for index, value in enumerate(equality_function_value):
             self.assertAlmostEqual(value, equality_bounds[index], 3)
 
-        self.assertAlmostEqual(results.best_solution.obj_value, 243.9984788247747, 8)
+        self.assertAlmostEqual(results.best_solution.obj_value, 243.9490050190484, 8)

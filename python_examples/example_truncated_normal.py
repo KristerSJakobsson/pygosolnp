@@ -24,7 +24,8 @@ class TruncatedNormalSampling(pygosolnp.sampling.Sampling):
         self.__parameter_lower_bounds = parameter_lower_bounds
         self.__parameter_upper_bounds = parameter_upper_bounds
 
-    def generate_sample(self, sample_size: int):
+    def generate_sample(self, sample_size: int) -> List[float]:
+        # This function is abstract, it returns random starting values for one sample
         return truncnorm.rvs(a=self.__parameter_lower_bounds,
                              b=self.__parameter_upper_bounds,
                              size=sample_size,
