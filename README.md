@@ -1,10 +1,9 @@
-WORK IN PROGRESS
 # pygosolnp - Random initialization and multiple restarts using pysolnp
 See full documentation on [http://solnp.readthedocs.io](https://solnp.readthedocs.io/en/latest/).
 
 
 ## Description
-SOLNP solves the general nonlinear optimization problem on the form:
+GOSOLNP tries to find the optimum for the general nonlinear optimization problem on the form:
 ```
     minimize f(x)
       subject to
@@ -13,8 +12,8 @@ SOLNP solves the general nonlinear optimization problem on the form:
    l_x <   x   < u_X
 ```
 where f(x), g(x) and h(x) are smooth functions.
-SOLNP guarantees to find an local optimum, but not the global one.
-GOSOLNP tries to find the global optimum in two steps:
+
+GOSOLNP tries to find the global optimum for given problem as explained below:
 1. Generate `n` random starting parameters based on some specified distribution and evaluate them based on one of two evaluation functions:
    1. Objective function `f(x)` for all `x` that satisfies the inequalit constraint `l_h <= h(x) <= u_h`
    2. Penalty function: ``

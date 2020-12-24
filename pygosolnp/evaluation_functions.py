@@ -145,24 +145,29 @@ def evaluate_starting_guess(simulation_index: int):
 
 def pysolnp_solve(solve_index: int, guess_index: int):
     number_of_parameters = __resource_value(resources.number_of_parameters)
+    debug = __resource_value(resources.pysolnp_debug)
     start_value = resources.parameter_guesses[(guess_index * number_of_parameters): (
             (guess_index + 1) * number_of_parameters)]
 
-    solve_result: pysolnp.Result = pysolnp.solve(obj_func=__resource_value(resources.obj_func),
-                                                 par_start_value=start_value,
-                                                 par_lower_limit=__resource_value(resources.par_lower_limit),
-                                                 par_upper_limit=__resource_value(resources.par_upper_limit),
-                                                 eq_func=__resource_value(resources.eq_func),
-                                                 eq_values=__resource_value(resources.eq_values),
-                                                 ineq_func=__resource_value(resources.ineq_func),
-                                                 ineq_lower_bounds=__resource_value(resources.ineq_lower_bounds),
-                                                 ineq_upper_bounds=__resource_value(resources.ineq_upper_bounds),
-                                                 rho=__resource_value(resources.pysolnp_rho),
-                                                 max_major_iter=__resource_value(resources.pysolnp_max_major_iter),
-                                                 max_minor_iter=__resource_value(resources.pysolnp_max_minor_iter),
-                                                 delta=__resource_value(resources.pysolnp_delta),
-                                                 tolerance=__resource_value(resources.pysolnp_tolerance),
-                                                 debug=__resource_value(resources.pysolnp_debug))
+    try:
+        solve_result: pysolnp.Result = pysolnp.solve(obj_func=__resource_value(resources.obj_func),
+                                                     par_start_value=start_value,
+                                                     par_lower_limit=__resource_value(resources.par_lower_limit),
+                                                     par_upper_limit=__resource_value(resources.par_upper_limit),
+                                                     eq_func=__resource_value(resources.eq_func),
+                                                     eq_values=__resource_value(resources.eq_values),
+                                                     ineq_func=__resource_value(resources.ineq_func),
+                                                     ineq_lower_bounds=__resource_value(resources.ineq_lower_bounds),
+                                                     ineq_upper_bounds=__resource_value(resources.ineq_upper_bounds),
+                                                     rho=__resource_value(resources.pysolnp_rho),
+                                                     max_major_iter=__resource_value(resources.pysolnp_max_major_iter),
+                                                     max_minor_iter=__resource_value(resources.pysolnp_max_minor_iter),
+                                                     delta=__resource_value(resources.pysolnp_delta),
+                                                     tolerance=__resource_value(resources.pysolnp_tolerance),
+                                                     debug=debug)
 
-    resources.restart_results[(solve_index * number_of_parameters): (
-            (solve_index + 1) * number_of_parameters)] = solve_result.optimum
+        resources.restart_results[(solve_index * number_of_parameters): (
+                (solve_index + 1) * number_of_parameters)] = solve_result.optimum
+    except ValueError as value_error:
+        if debug:
+            print(f"Error happened when running pysolnp for guess with index {guess_index}, ignoring this result. Error message: {value_error}")
