@@ -41,9 +41,9 @@ class TriangleDistribution(Distribution):
     Triangle distribution with provided low, high and mode
     """
 
-    def __init__(self, low: float, high: float, mode: float):
-        self.__low = low
-        self.__high = high
+    def __init__(self, lower: float, upper: float, mode: float):
+        self.__low = lower
+        self.__high = upper
         self.__mode = mode
 
     def generate(self, generator: random.Random) -> float:
