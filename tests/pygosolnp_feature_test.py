@@ -1,15 +1,18 @@
 import unittest
+from unittest.mock import patch
 
 from pygosolnp.pygosolnp import solve, EvaluationType
 from pygosolnp.sampling import NormalDistribution, UniformDistribution, TriangleDistribution, ConstantValue
 from tests.resources import alkyla_equality_function, parameter_lower_bounds, parameter_upper_bounds, \
     alkyla_inequality_function, alkyla_objective_function, inequality_lower_bounds, inequality_upper_bounds, \
     equality_values
+from tests.mock.mock_random import MockRandom
 
 
 class TestPygosolnpFeatures(unittest.TestCase):
 
-    def test_rng(self):
+    def test_rng_without_seed(self):
+        # Note: No need to patch random since we are expecting actual random outcome in this test
         # Run this twice and assure results are different
         result1 = solve(obj_func=alkyla_objective_function,
                         par_lower_limit=parameter_lower_bounds,
@@ -21,6 +24,8 @@ class TestPygosolnpFeatures(unittest.TestCase):
 
         self.assertNotEqual(str(result1), str(result2))
 
+    @patch(target="random.Random", new=MockRandom)
+    def test_rng_with_seed(self):
         # RNG with seed, note that we remove the constraints to the problem to make it easier to find a solution
         seed = 15
 
@@ -31,11 +36,12 @@ class TestPygosolnpFeatures(unittest.TestCase):
 
         self.assertAlmostEqual(results.best_solution.obj_value, -2597.805528666477, 4)
 
+    @patch(target="random.Random", new=MockRandom)
     def test_evaluation_type(self):
-        seed = 19937
+        seed = 1234567
 
         # Eval Type OBJECTIVE_FUNC_EXCLUDE_INEQ has a hard time locating starting points for problems with narrow inequality bounds
-        # Alkyla is a bad function in this sense, but with enough simulations we find something...
+        # Alkyla is a bad function in this sense, but with enough luck and enough simulations we find something...
         results = solve(obj_func=alkyla_objective_function,
                         par_lower_limit=parameter_lower_bounds,
                         par_upper_limit=parameter_upper_bounds,
@@ -46,9 +52,9 @@ class TestPygosolnpFeatures(unittest.TestCase):
                         ineq_upper_bounds=inequality_upper_bounds,
                         seed=seed,
                         evaluation_type=EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ,
-                        number_of_simulations=1000000)
+                        number_of_simulations=100000)
 
-        self.assertAlmostEqual(results.best_solution.obj_value, -172.6396637275493, 4)
+        self.assertAlmostEqual(results.best_solution.obj_value, -172.64110132537394, 4)
 
         # Eval Type PENALTY_BARRIER_FUNCTION is better at locating starting points for problems with narrow inequality bounds
         results = solve(obj_func=alkyla_objective_function,
@@ -62,29 +68,36 @@ class TestPygosolnpFeatures(unittest.TestCase):
                         seed=seed,
                         evaluation_type=EvaluationType.PENALTY_BARRIER_FUNCTION.value)
 
-        self.assertAlmostEqual(results.best_solution.obj_value, -172.6344504852143, 4)
+        self.assertAlmostEqual(results.best_solution.obj_value, -170.98167226891587, 4)
 
+    @patch(target="random.Random", new=MockRandom)
     def test_number_of_restarts(self):
         number_of_restarts = 2
+        seed = 1234567
         results = solve(obj_func=alkyla_objective_function,
                         par_lower_limit=parameter_lower_bounds,
                         par_upper_limit=parameter_upper_bounds,
-                        number_of_restarts=number_of_restarts)
+                        number_of_restarts=number_of_restarts,
+                        seed=seed)
 
         self.assertEqual(len(results.all_results), 2)
 
+    @patch(target="random.Random", new=MockRandom)
     def test_number_of_simulations(self):
         number_of_simulations = 5
+        seed = 1234567
         results = solve(obj_func=alkyla_objective_function,
                         par_lower_limit=parameter_lower_bounds,
                         par_upper_limit=parameter_upper_bounds,
-                        number_of_simulations=number_of_simulations)
+                        number_of_simulations=number_of_simulations,
+                        seed=seed)
 
         # We have one guess for each parameter in each simulation
         expected_number_of_starting_guesses = number_of_simulations * len(parameter_lower_bounds)
 
         self.assertEqual(len(results.starting_guesses), expected_number_of_starting_guesses)
 
+    @patch(target="random.Random", new=MockRandom)
     def test_distribution_settings(self):
         # Test the built-in distributions:
         ## UniformDistribution (default)
@@ -93,7 +106,7 @@ class TestPygosolnpFeatures(unittest.TestCase):
         ## NormalDistribution (not bound to the problem limits, so can cause ValueErrors)
         # For examples with truncated normal distribution or grid sampling, see the pygosolnp/python_examples/ folder.
 
-        seed = 123
+        seed = 1234567
         random_number_distribution = [
             UniformDistribution(lower=parameter_lower_bounds[0], upper=parameter_upper_bounds[0]),
             UniformDistribution(lower=parameter_lower_bounds[1], upper=parameter_upper_bounds[1]),
@@ -124,5 +137,5 @@ class TestPygosolnpFeatures(unittest.TestCase):
                         evaluation_type=EvaluationType.PENALTY_BARRIER_FUNCTION,
                         start_guess_sampling=random_number_distribution)
 
-        expected = [1.0472719770188865, 1.394986840362117, 48.8690116404478, 14.308009397537562, 18.02397755903389, 85.30522932881858, 55.57717340288379, 6.667970391053073, 3.6, 156.49983212864856, 6.744333142185511, 5.340742314063284, 29.419602302113333, 10.066822143168913, 8.725515868304367, 85.70090799800339, 60.79595448147919, 4.682265418742503, 3.6, 149.48291056761096, 6.309179474717266, 7.1731473329111, 108.64783827413987, 13.710582455139804, 2.8435012886300215, 91.3205747548704, 11.805057859444085, 10.10305434913332, 3.6, 147.52272080665128, 16.75675288390269, 12.300715959679737, 41.21545897871575, 42.05986365168132, 4.137249413322229, 89.87122020952442, 54.80137093372041, 9.22118914786812, 3.6, 150.52935280055388, 6.305263044319762, 6.371810423486387, 92.31349078967085, 30.5100853545626, 13.69674437322012, 90.10682611444399, 66.6658986412204, 9.890258808939956, 3.6, 140.91723345075388, 7.4904326364496665, 0.5094609078576298, 90.50078062306466, 17.258596636601634, 16.403803688676618, 92.30916729491383, 65.93630337909174, 5.624907417542909, 3.6, 154.59882922969987, 6.738323055834123, 6.259092913140844, 8.794893374842388, 28.270682808058147, 11.463370290210628, 87.68884879447867, 26.0702589141365, 4.889542390237933, 3.6, 152.554473932165, 7.038273661964023, 3.6660762316845474, 63.839698881811756, 38.946534044769656, 18.18306551273559, 90.11040671394481, 94.30241347891283, 10.793516049964698, 3.6, 152.51421058231693, 12.599814194484914, 3.7339709453785535, 58.0573779171776, 17.103589222956202, 19.839155455884338, 88.55599936119259, 73.89026343234005, 4.336884126714421, 3.6, 157.19018629693437, 5.12724694593085, 5.632760487194819, 32.63158227921019, 27.37074334450615, 8.407146334701082, 85.86896667585282, 15.321745860406931, 6.792095542121678, 3.6, 157.67128088975167]
+        expected = [19.262864952192448, 3.771726139520572, 69.77797447275604, 19.068793973427482, 19.33182084216137, 89.89207643509036, 16.299077190999093, 7.656803716342179, 3.6, 141.68084366746555, 16.527810282976148, 2.8024116596314954, 113.8847499219252, 41.913648375763266, 13.653863317763928, 89.36107961371863, 31.65003670354735, 6.742247466242993, 3.6, 144.41878023451304, 9.155674825062048, 10.587247668990255, 89.6903787978092, 38.29483391669842, 8.064799536849511, 89.43255250817325, 86.41114587298019, 5.961162104738718, 3.6, 147.6264662441887, 10.067591751749159, 13.136604255021913, 73.43265943827133, 44.724776804281476, 0.7740903344904604, 88.462319551243, 50.21684783727512, 5.77672041074722, 3.6, 145.39269004124904, 9.068225746042762, 12.61405383313014, 68.82767844281483, 16.611623195615945, 9.00169037647699, 85.31447609370339, 51.318693144764346, 9.28229782560638, 3.6, 150.88899802298727, 2.853206753025248, 13.650346506177705, 12.332917949430415, 43.013069327734556, 19.840074115550717, 91.20142486328595, 79.33118000010684, 3.8956025310633953, 3.6, 153.4160006648588, 0.6434958413807812, 2.9463400863302613, 102.90608010105203, 38.77132597397568, 3.023003386685923, 85.51893369450241, 59.20378581486704, 4.856217794173671, 3.6, 159.0155564965776, 19.650096860859275, 14.557888535778906, 24.793341705879453, 28.499566032377153, 12.098785988152493, 92.47510246654802, 44.847907830159485, 7.819085343574262, 3.6, 154.12786686990134, 8.266201078057069, 10.758463796133531, 0.2800364042800263, 23.509199466708623, 6.6730557487734306, 86.50613863644213, 65.27792963956803, 10.344369491252513, 3.6, 153.0090154093769, 13.044272915070119, 3.896854881633315, 86.85241703973514, 22.201841915524042, 17.718325429729628, 89.780805965076, 64.98014550674284, 8.237553597176323, 3.6, 150.8605530994913]
         self.assertListEqual(results.starting_guesses, expected)

@@ -1,7 +1,10 @@
 import unittest
+from unittest.mock import patch
 
 from pygosolnp.benchmarks.electron import Electron, obj_func, eq_func
 from pygosolnp.pygosolnp import solve, EvaluationType
+
+from tests.mock.mock_random import MockRandom
 
 
 class TestPygosolnpElectron(unittest.TestCase):
@@ -40,6 +43,7 @@ class TestPygosolnpElectron(unittest.TestCase):
         for index, value in enumerate(equality_function_value):
             self.assertAlmostEqual(value, equality_bounds[index], 6)
 
+    @patch(target="random.Random", new=MockRandom)
     def test_electron_optimization_exclude_indequalities_single_process(self):
         objective_function = lambda x: self.electron.objective_function(x)
         equality_function = lambda x: self.electron.equality_function(x)
@@ -72,6 +76,7 @@ class TestPygosolnpElectron(unittest.TestCase):
 
         self.assertAlmostEqual(results.best_solution.obj_value, 243.92615570955812, 8)
 
+    @patch(target="random.Random", new=MockRandom)
     def test_electron_optimization_penalty_barrier_function_single_process(self):
         objective_function = lambda x: self.electron.objective_function(x)
         equality_function = lambda x: self.electron.equality_function(x)
@@ -104,6 +109,7 @@ class TestPygosolnpElectron(unittest.TestCase):
 
         self.assertAlmostEqual(results.best_solution.obj_value, 243.9490050190484, 8)
 
+    @patch(target="random.Random", new=MockRandom)
     def test_electron_optimization_exclude_inequalities_multiple_processes(self):
         equality_bounds = self.electron.equality_constraint_bounds
         upper_bounds = self.electron.parameter_upper_bound
@@ -134,6 +140,7 @@ class TestPygosolnpElectron(unittest.TestCase):
 
         self.assertAlmostEqual(results.best_solution.obj_value, 243.92615570955812, 8)
 
+    @patch(target="random.Random", new=MockRandom)
     def test_electron_optimization_penalty_barrier_function_multiple_processes(self):
         equality_bounds = self.electron.equality_constraint_bounds
         upper_bounds = self.electron.parameter_upper_bound
