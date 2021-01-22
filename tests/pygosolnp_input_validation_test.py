@@ -13,19 +13,19 @@ class TestPygosolnpInputValidation(unittest.TestCase):
     def test_bad_objective_function(self):
         # Missing mandatory data
         with self.assertRaises(ValueError):
-            solve(obj_func=alkyla_objective_function,
-                  par_lower_limit=None,
-                  par_upper_limit=None)
-
-        with self.assertRaises(ValueError):
             solve(obj_func=None,
                   par_lower_limit=parameter_lower_bounds,
-                  par_upper_limit=None)
+                  par_upper_limit=parameter_upper_bounds)
 
         with self.assertRaises(ValueError):
-            solve(obj_func=None,
+            solve(obj_func=alkyla_objective_function,
                   par_lower_limit=None,
                   par_upper_limit=parameter_upper_bounds)
+
+        with self.assertRaises(ValueError):
+            solve(obj_func=alkyla_objective_function,
+                  par_lower_limit=parameter_lower_bounds,
+                  par_upper_limit=None)
 
         # Non-callable objective function
         with self.assertRaises(ValueError):

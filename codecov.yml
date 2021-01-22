@@ -2,3 +2,4 @@ ignore:
   - "tests/"
   - "python_examples/"
   - "setup.py"
+  - "benchmarks/electron.py"
