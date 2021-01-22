@@ -39,7 +39,7 @@ class MockRandom(Random):
                 index = int(match[1])
                 sorted_files.append((file, index))
 
-        sorted(sorted_files, key=lambda x: x[1])
+        sorted_files = sorted(sorted_files, key=lambda x: x[1])
 
         for file, index in sorted_files:
             match = re.match(pattern=regex, string=file)
@@ -48,7 +48,6 @@ class MockRandom(Random):
                 with open(file_path, "r") as input_data:
                     mock_random_number_data_raw = mock_random_number_data_raw + input_data.read()
 
-        print(mock_random_number_data_raw[1:20])
         mock_random_number_data = json.loads(mock_random_number_data_raw)
         return mock_random_number_data
 
