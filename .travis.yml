@@ -13,7 +13,7 @@ after_success:
   - codecov
 
 deploy:
-  - provider: pypitest
+  - provider: pypi
     user: __token__
     password: $TEST_PYPI_TOKEN
     server: https://testpypi.python.org/pypi
