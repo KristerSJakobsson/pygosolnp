@@ -13,10 +13,18 @@ after_success:
   - codecov
 
 deploy:
-  provider: pypi
-  user: __token__
-  password: $TEST_PYPI_TOKEN
-  distributions: "sdist bdist_wheel"
-  skip_existing: true
-  on:
-    branch: release
+  - provider: pypitest
+    user: __token__
+    password: $TEST_PYPI_TOKEN
+    server: https://testpypi.python.org/pypi
+    distributions: "sdist bdist_wheel"
+    skip_existing: true
+    on:
+       branch: main
+  - provider: pypi
+    user: __token__
+    password: $PYPI_TOKEN
+    distributions: "sdist bdist_wheel"
+    skip_existing: true
+    on:
+      branch: release
