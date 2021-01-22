@@ -30,9 +30,18 @@ class MockRandom(Random):
         folder_path = os.path.dirname(__file__)
         files = os.listdir(folder_path)
         mock_random_number_data_raw = ""
-        regex = r"^random_numbers\d.json$"  # File names for chunked RNG data
+        regex = r"^random_numbers(\d).json$"  # File names for chunked RNG data
 
+        sorted_files = []
         for file in files:
+            match = re.match(pattern=regex, string=file)
+            if match:
+                index = int(match[1])
+                sorted_files.append((file, index))
+
+        sorted(sorted_files, key=lambda x: x[1])
+
+        for file, index in sorted_files:
             match = re.match(pattern=regex, string=file)
             if match:
                 file_path = os.path.join(folder_path, file)
