@@ -23,9 +23,9 @@ GOSOLNP tries to find the global optimum for given problem as explained below:
 2. For the `m` starting parameters with the lowest evaluation function value, run pysolnp to find nearest optimum. 
 
 ## Compatability
-Python source code written to be compatible with Python 3.5+
-Depends on pysolnp.
-Note: For best results, building pysolnp from source is recommended, as BLAS and LAPACK will make a difference.
+Python source code written to be compatible with Python 3.6+.
+Depends on the `pysolnp` library.
+Note: `pysolnp` is available on pip but for best results building `pysolnp` from source is recommended, as BLAS and LAPACK will make a difference.
 
 ## Installation
 Simply install the package through PyPi with:
