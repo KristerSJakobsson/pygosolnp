@@ -17,7 +17,7 @@ GOSOLNP tries to find the optimum for the general nonlinear optimization problem
 where f(x), g(x) and h(x) are smooth functions.
 
 GOSOLNP tries to find the global optimum for given problem as explained below:
-1. Generate `n` random starting parameters based on some specified distribution and evaluate them based on one of two evaluation functions (lower value is better)::
+1. Generate `n` random starting parameters based on some specified distribution and evaluate them (lower value is better) based on one of two evaluation functions::
    1. Objective function `f(x)` for all `x` that satisfies the inequalit constraint `l_h <= h(x) <= u_h`
    2. Penalty function: `f(x) + 100 * sum(max(0, 0.9 + l_x - g(x))^2 + max(0, 0.9 + g(x) - u_x)^2) + sum(h(x) - e_x)^2/100`
 2. For the `m` starting parameters with the lowest evaluation function value, run pysolnp to find nearest optimum. 
