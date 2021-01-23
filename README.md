@@ -148,10 +148,12 @@ Inputs:
 | debug                      | bool                             | False                                      | If set to true some debug output will be printed.                                                                                          |
 
 *Defaults for configuration parameters are based on the defaults for Rsolnp.<br>
+
 **Higher values means the solution will bring the solution into the feasible region with higher weight. Very high values might lead to numerical ill conditioning or slow down convergence.
-***Supply an instance of a class that inherits the abstract class `pygosolnp.sampling.Sampling` to provide starting gesses, see below for examples:
-1) 'python_examples/example_grid_sampling.py' - Uses Scikit-optimize to generate grid-style random starting guesses.
-2) 'python_examples/example_truncated_normal.py' - Uses  
+
+***Supply an instance of a class that inherits the abstract class `pygosolnp.sampling.Sampling` to provide starting guesses, see below for examples:
+1) [/python_examples/example_grid_sampling.py](https://github.com/KristerSJakobsson/pygosolnp/blob/main/python_examples/example_grid_sampling.py) - Uses Scikit-optimize to generate grid-style random starting guesses.
+2) [/python_examples/example_truncated_normal.py](https://github.com/KristerSJakobsson/pygosolnp/blob/main/python_examples/example_truncated_normal.py) - Uses Scipy random to generate Truncated Normal random numbers using the PCG64 generator. 
 
 Output:
 The function returns the `pygosolnp.Results` with the below properties.
