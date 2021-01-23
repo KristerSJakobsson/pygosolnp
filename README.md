@@ -1,3 +1,6 @@
+[![codecov](https://codecov.io/gh/KristerSJakobsson/pygosolnp/branch/main/graph/badge.svg?token=49IZH9VPJI)](https://codecov.io/gh/KristerSJakobsson/pygosolnp)
+[![Documentation Status](https://readthedocs.org/projects/solnp/badge/?version=latest)](https://solnp.readthedocs.io/en/latest/?badge=latest)
+
 # pygosolnp - Random initialization and multiple restarts using pysolnp
 See full documentation on [http://solnp.readthedocs.io](https://solnp.readthedocs.io/en/latest/).
 
