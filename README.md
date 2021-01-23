@@ -21,6 +21,7 @@ GOSOLNP tries to find the global optimum for given problem as explained below:
    1. Objective function `f(x)` for all `x` that satisfies the inequalit constraint `l_h <= h(x) <= u_h`
    2. Penalty function: `f(x) + 100 * sum(max(0, 0.9 + l_x - g(x))^2 + max(0, 0.9 + g(x) - u_x)^2) + sum(h(x) - e_x)^2/100`
 2. For the `m` starting parameters with the lowest evaluation function value, run pysolnp to find nearest optimum. 
+3. Return the best valid solution among the ones found through the various starting parameters (lowest solution value within bounds)
 
 ## Compatability
 Python source code written to be compatible with Python 3.6+.
