@@ -64,7 +64,7 @@ class ConstantValue(Distribution):
 
 class Sampling(abc.ABC):
 
-    def generate_all_samples(self, number_of_samples: int, sample_size: int) -> Iterable[float]:
+    def generate_all_samples(self, number_of_samples: int, sample_size: int) -> List[float]:
         samples: List[Union[float, None]] = [None] * number_of_samples * sample_size
         for sample_index in range(number_of_samples):
             samples[sample_index * sample_size: (sample_index + 1) * sample_size] = self.generate_sample(

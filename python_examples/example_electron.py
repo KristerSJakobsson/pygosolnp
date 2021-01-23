@@ -39,12 +39,15 @@ results = pygosolnp.solve(
     eq_values=equality_constraints,
     par_lower_limit=parameter_lower_bounds,
     par_upper_limit=parameter_upper_bounds,
-    number_of_restarts=4,
-    number_of_simulations=20000,
-    number_of_processes=None,
-    seed=443,
-    pysolnp_max_major_iter=100,
-    evaluation_type=pygosolnp.EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ,
+    number_of_simulations=20000,  # This represents the number of starting guesses to use
+    evaluation_type=pygosolnp.EvaluationType.OBJECTIVE_FUNC_EXCLUDE_INEQ,  # This specifies how starting guesses are evaluated
+    number_of_restarts=4,  # This specifies how many restarts to run from the best starting guesses
+    number_of_processes=None,  # None here means to run everything single-processed
+    seed=443,  # Seed for reproducibility, if omitted the default random seed is used (typically cpu clock based)
+    pysolnp_max_major_iter=100,  # Pysolnp property
     debug=False)
 
-print(results.best_solution)
+all_results = results.all_results
+print("; ".join([f"Solution {index + 1}: {solution.obj_value}" for index, solution in enumerate(all_results)]))
+best_solution = results.best_solution
+print(f"Best solution {best_solution.obj_value} for parameters {best_solution.parameters}.")

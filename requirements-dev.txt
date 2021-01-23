@@ -2,4 +2,3 @@ codecov
 pytest-cov
 nose
 wheel
-twine

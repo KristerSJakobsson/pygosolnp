@@ -24,7 +24,8 @@ deploy:
        branch: main
   - provider: pypi
     user: "__token__"
-    password: $PYPI_TOKEN
+    password:
+      secure:  CGaJ9sSE2JVPggcZKu4IAZeRs7AMD1NiJ17XhOLCiXZZWp9ereaUnNdcz2sOQnqEteZiPyxM8UVXOIixjY/8Amv40tO9T/N6ZcpDG2cC/KDcc91vkzEA4mmxqejfX1S0I1SQXzRM6sCtuTCSL/MirduXLWDM4pZz0pWlKfQ4juWIqdhKU09I0cPn2ibXRfVxOBLf1rxVOKnDv7Y7C03NYmnn1Sv/xhYAiKxCl76oAlOwjzZKyBd59bL9SUUvqSc+dBRLZ//WExwCAbQjtOtWxQsO+LClxmireLTcGIZ4Hq1L3mKkTphR3REWd3Y5UfDXUsp7OV4Mh74dTjFPDrseaSWGmg4DtUb/iiL1DKYeGYKol7Z3m1uwRl1TjifDm2pFr3SCQ2ELl4JP7e9Js8w2mN8qBlaW4O3S+LxkzreDkQFz4mICnctHGEixasA/5HBDzuIydrPm8guBj7qCoMDMBlPeXLd/GM/8zYHQESnyhhG+IZs6p3wbVd+UNz2eRfEhT57pFAZUc4bB7mBiEtyNqxlRMkPet6T+rJcHr54CnHWS6tiZfL0ehq6CMILPi5+gJR+tdHJAxrRVbfATjbvWdty5qOz7S6gnHilm4E5U1QMWGC2GR997UoOeEqxcScDK0+5po6DulJhkV7qCdtON1lwHp8StAXhX8BJCYsHu94Y=
     skip_existing: true
     skip_cleanup: true
     on:
