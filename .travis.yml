@@ -15,7 +15,8 @@ after_success:
 deploy:
   - provider: pypi
     user: "__token__"
-    password: $TEST_PYPI_TOKEN
+    password:
+      secure: n8WEssaCqiFenfvgU+lro3j4lprvqVwA3G3DW6Ri/0jHFKSCySopnhQzIhHvI0XNz7YxD0l8UJEz8eTp0Emc+9EwJ0PiJADb03QLnbZJLGxBj851zXd+bP1ryUkKg2DL6zFwx9RQPVU5EGRwgBFW+gTEGkbNT0++TkjwZXA8hipqzXaliZe7xizmeM6RkpxmW6i3VeLw/gqxd/+ssOLhojLJQ/jl5/bqc1FqABBZ1T19kpV14EXWoOTYQZMGdE8k3cpvpWkKgabCO7+CAeGmI7FIsp/s08HQx9BuIs2EcVt3TYyjVvyw+w6AAUrSDRZFVs1pmRmJyjmFraVmG7IRY7SwKPBbd0NU7F+K77lno4oMns50cMAqDJeq4sl1zuaFh6fDiL8aTf3S4ZOnkqZ6TTKopVXJuxgMzPHxcvJ7wyj++Lzu5Y/cwxaJxvjoQg8xbGYP/fgg+HWEbC4CPhir7WdC1ZW+vlQQ6VYgWqgj7sUxizJFchbSecgKeNF1jn3PcMmIJ4JZfpyjITWBpAZoZ8m3+p6VxF8tlgIv+BYl9FVbYVPmN465sZ17/zUSStPGing5xAsd4jdh05EWB3VXwviu7kHlgOTtYajKtsseau7gYxCO7U52jkEEp7GUuAdVfjmEVeOIQzD+rGgmUOU/ninbIcaB1a9YaBJ9VnpC8a0=
     server: https://test.pypi.org/legacy/
     skip_existing: true
     skip_cleanup: true
