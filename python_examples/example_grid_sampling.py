@@ -24,7 +24,7 @@ class GridSampling(pygosolnp.sampling.Sampling):
 
     def generate_all_samples(self, number_of_samples: int, sample_size: int) -> List[float]:
         # Overwrite this function to define the behavior when generating starting guesses for all samples
-        # By default it calls `generate_sample` number_of_samples time
+        # By default it calls `generate_sample` number_of_samples times, however we customize it here
         grid = skopt.sampler.Grid()
         grid_values = grid.generate(dimensions=self.__space.dimensions,
                                     n_samples=number_of_samples,
@@ -32,8 +32,8 @@ class GridSampling(pygosolnp.sampling.Sampling):
         return list(chain.from_iterable(grid_values))
 
     def generate_sample(self, sample_size: int) -> List[float]:
-        # This function is abstract
-        # Not needed since we are generating a grid for all samples
+        # This function is abstract in the base class
+        # Not needed since we are generating a grid for all samples, so overwrite it with pass
         pass
 
 
@@ -60,6 +60,7 @@ sampling = GridSampling(
     parameter_upper_bounds=parameter_upper_bounds,
     seed=92)
 
+# Note that the seed variable to pygosolnp.solve is ignored due to the custom sampling
 results = pygosolnp.solve(
     obj_func=permutation_function,
     par_lower_limit=parameter_lower_bounds,
