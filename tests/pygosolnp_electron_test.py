@@ -44,7 +44,7 @@ class TestPygosolnpElectron(unittest.TestCase):
             self.assertAlmostEqual(value, equality_bounds[index], 6)
 
     @patch(target="random.Random", new=MockRandom)
-    def test_electron_optimization_exclude_indequalities_single_process(self):
+    def test_electron_optimization_exclude_inequalities_single_process(self):
         objective_function = lambda x: self.electron.objective_function(x)
         equality_function = lambda x: self.electron.equality_function(x)
         equality_bounds = self.electron.equality_constraint_bounds

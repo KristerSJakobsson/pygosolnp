@@ -54,24 +54,25 @@ def permutation_function(data):
 parameter_lower_bounds = [-4.0] * 4
 parameter_upper_bounds = [4.0] * 4
 
-# Instantiate sampling object
-sampling = GridSampling(
-    parameter_lower_bounds=parameter_lower_bounds,
-    parameter_upper_bounds=parameter_upper_bounds,
-    seed=92)
+if __name__ == '__main__':
+    # Instantiate sampling object
+    sampling = GridSampling(
+        parameter_lower_bounds=parameter_lower_bounds,
+        parameter_upper_bounds=parameter_upper_bounds,
+        seed=92)
 
-# Note that the seed variable to pygosolnp.solve is ignored due to the custom sampling
-results = pygosolnp.solve(
-    obj_func=permutation_function,
-    par_lower_limit=parameter_lower_bounds,
-    par_upper_limit=parameter_upper_bounds,
-    number_of_restarts=6,
-    number_of_simulations=2000,
-    pysolnp_max_major_iter=25,
-    pysolnp_tolerance=1E-9,
-    start_guess_sampling=sampling)
+    # Note that the seed variable to pygosolnp.solve is ignored due to the custom sampling
+    results = pygosolnp.solve(
+        obj_func=permutation_function,
+        par_lower_limit=parameter_lower_bounds,
+        par_upper_limit=parameter_upper_bounds,
+        number_of_restarts=6,
+        number_of_simulations=2000,
+        pysolnp_max_major_iter=25,
+        pysolnp_tolerance=1E-9,
+        start_guess_sampling=sampling)
 
-print(results.best_solution)
+    print(results.best_solution)
 
 # Best solution: [0.6222222222222218, 2.2222222222222223, 3.822222222222222, 3.2888888888888888]
 # Objective function value: 9.91928145483169
