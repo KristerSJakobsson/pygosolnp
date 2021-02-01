@@ -39,7 +39,7 @@ build_script:
   - sh: |
       cd pygosolnp
       "${PYTHON}/pip" install wheel==0.34.2
-      "${PYTHON}/pip" install -r "./requirements-dev.txt"
+      "${PYTHON}/pip" install -r requirements-dev.txt
       "${PYTHON}/python" setup.py sdist bdist_wheel
 
 artifacts:
@@ -57,11 +57,11 @@ test_script:
 on_success:
   # Upload the generated wheel package to pypi
   - sh: |
-      $HOME/venv3.8/pip install twine==3.1.1
+      $HOME/venv3.8/bin/pip install twine==3.1.1
       pattern="./dist/*.tar.gz"
       files=( $pattern )
-      $HOME/venv3.8/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${files[0]}"
+      $HOME/venv3.8/bin/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${files[0]}"
       pattern="./dist/*.whl"
       files=( $pattern )
-      $HOME/venv3.8/venv3.8/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${files[0]}"
+      $HOME/venv3.8/bin/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${files[0]}"
 
