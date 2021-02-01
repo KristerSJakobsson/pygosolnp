@@ -31,14 +31,13 @@ for:
           secure: BlFonvNFzspp5kZ6nsJTjSJfWqviD0DDAiCgMtKVbyspHPCu+PR/fS++fUCt6hM3X03oTdvzX0wYGbZiZwPr09SO4lblS0Qyilm8rnHpICzuCDn+KBBNrIFYdvU4WYndcQ9fNniPw1QiWxmMJsbxsSc7io3thIt+fG8L9OJxFQmjzDj2Az0oXOUswSVjKmq8aoOD2agdcS+JI6uyEq9Ve5kQYdY4Bgn3FNWSsL8QxnHW8MQxuNrpaWvhV22BGqGk0NQVNlnlEyCuiPVatPKsUA==
 
 install:
-  - git clone --recursive https://github.com/KristerSJakobsson/pygosolnp.git
   - sh: |
       "${PYTHON}/python" -m pip install --upgrade pip
 
 build_script:
   # Build and install the wheel
   - sh: |
-      cd solnp
+      cd pygosolnp
       "${PYTHON}/pip" install wheel==0.34.2
       "${PYTHON}/pip" install -r "./requirements-dev.txt"
       "${PYTHON}/python" setup.py sdist bdist_wheel
