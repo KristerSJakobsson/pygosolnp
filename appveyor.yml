@@ -39,29 +39,28 @@ build_script:
   - sh: |
       cd pygosolnp
       "${PYTHON}/pip" install wheel==0.34.2
-      "${PYTHON}/pip" install -r requirements-dev.txt
-      "${PYTHON}/python" setup.py sdist bdist_wheel
+      "${PYTHON}/pip" install -r "${APPVEYOR_BUILD_FOLDER}/requirements-dev.txt"
+      "${PYTHON}/python" "${APPVEYOR_BUILD_FOLDER}/setup.py" sdist bdist_wheel
 
 artifacts:
-  - path: pygosolnp/dist/*.*
+  - path: ${APPVEYOR_BUILD_FOLDER}/pygosolnp/dist/*.*
 
 test_script:
   # Test the compiled build
   - sh: |
       ls
-      pattern="./dist/*.whl"
+      pattern="${APPVEYOR_BUILD_FOLDER}/dist/*.whl"
       files=( $pattern )
       "${PYTHON}/pip" install --no-index "${files[0]}"
-      "${PYTHON}/python" -m pytest --cov-report=xml --cov=pygosolnp tests/
+      "${PYTHON}/python" -m pytest --cov-report=xml --cov=pygosolnp "${APPVEYOR_BUILD_FOLDER}/tests/"
 
 on_success:
   # Upload the generated wheel package to pypi
   - sh: |
-      $HOME/venv3.8/bin/pip install twine==3.1.1
-      pattern="./dist/*.tar.gz"
+      /home/appveyor/venv3.8/bin/pip install twine==3.1.1
+      pattern="${APPVEYOR_BUILD_FOLDER}/dist/*.tar.gz"
       files=( $pattern )
-      $HOME/venv3.8/bin/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${files[0]}"
-      pattern="./dist/*.whl"
+      /home/appveyor/venv3.8/bin/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${files[0]}"
+      pattern="${APPVEYOR_BUILD_FOLDER}/dist/*.whl"
       files=( $pattern )
-      $HOME/venv3.8/bin/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${files[0]}"
-
+      /home/appveyor/venv3.8/bin/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${files[0]}"
