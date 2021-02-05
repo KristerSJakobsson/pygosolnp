@@ -39,6 +39,7 @@ build_script:
   - sh: |
       cd pygosolnp
       "${PYTHON}/pip" install wheel==0.34.2
+      "${PYTHON}/pip" install -r "${APPVEYOR_BUILD_FOLDER}/requirements.txt"
       "${PYTHON}/pip" install -r "${APPVEYOR_BUILD_FOLDER}/requirements-dev.txt"
       "${PYTHON}/python" "${APPVEYOR_BUILD_FOLDER}/setup.py" sdist bdist_wheel
 
