@@ -44,7 +44,7 @@ build_script:
       "${PYTHON}/python" "${APPVEYOR_BUILD_FOLDER}/setup.py" sdist bdist_wheel
 
 artifacts:
-  - path: ${APPVEYOR_BUILD_FOLDER}/pygosolnp/dist
+  - path: /dist
 
 test_script:
   # Test the compiled build
