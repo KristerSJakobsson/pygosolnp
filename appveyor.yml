@@ -44,7 +44,7 @@ build_script:
       "${PYTHON}/python" "${APPVEYOR_BUILD_FOLDER}/setup.py" sdist bdist_wheel
 
 artifacts:
-  - path: ${APPVEYOR_BUILD_FOLDER}/pygosolnp/dist/*.*
+  - path: ${APPVEYOR_BUILD_FOLDER}/pygosolnp/dist
 
 test_script:
   # Test the compiled build
@@ -56,8 +56,5 @@ on_success:
   - sh: |
       /home/appveyor/venv3.8/bin/pip install twine==3.1.1
       pattern="${APPVEYOR_BUILD_FOLDER}/dist/*.tar.gz"
-      files=( $pattern )
-      /home/appveyor/venv3.8/bin/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${files[0]}"
-      pattern="${APPVEYOR_BUILD_FOLDER}/dist/*.whl"
       files=( $pattern )
       /home/appveyor/venv3.8/bin/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${files[0]}"
