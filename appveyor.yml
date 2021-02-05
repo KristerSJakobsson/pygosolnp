@@ -47,11 +47,7 @@ artifacts:
 
 test_script:
   # Test the compiled build
-  - sh: |
-      for pattern in ${APPVEYOR_BUILD_FOLDER}/dist/*.whl ; do
-         "${PYTHON}/pip" install --no-index "${pattern}"
-         "${PYTHON}/python" -m pytest --cov-report=xml --cov=pygosolnp "${APPVEYOR_BUILD_FOLDER}/tests/"
-      done
+  - sh: "${PYTHON}/python" -m pytest --cov-report=xml --cov=pygosolnp "${APPVEYOR_BUILD_FOLDER}/tests/"
 
 on_success:
   # Upload the generated wheel package to pypi
