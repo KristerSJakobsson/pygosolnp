@@ -55,6 +55,4 @@ on_success:
   # Upload the generated wheel package to pypi
   - sh: |
       /home/appveyor/venv3.8/bin/pip install twine==3.1.1
-      pattern="${APPVEYOR_BUILD_FOLDER}/dist/*.tar.gz"
-      files=( $pattern )
-      /home/appveyor/venv3.8/bin/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${files[0]}"
+      /home/appveyor/venv3.8/bin/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${APPVEYOR_BUILD_FOLDER}/dist/*"
