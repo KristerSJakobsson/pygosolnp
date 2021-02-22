@@ -46,10 +46,10 @@ build_script:
 artifacts:
   - path: "${APPVEYOR_BUILD_FOLDER}/dist"
 
-test_script:
-  # Test the compiled build
-  - sh: |
-        "${PYTHON}/python" -m pytest --cov-report=xml --cov=pygosolnp "${APPVEYOR_BUILD_FOLDER}/tests/"
+#test_script:
+#  # Test the compiled build
+#  - sh: |
+#        "${PYTHON}/python" -m pytest --cov-report=xml --cov=pygosolnp "${APPVEYOR_BUILD_FOLDER}/tests/"
 
 on_success:
   # Upload the generated wheel package to pypi
