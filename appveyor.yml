@@ -9,7 +9,7 @@ environment:
     PYPI_SERVER: https://test.pypi.org/legacy/
     PYPI_PASSWORD:
       secure:
-        OXK5a0Kcyc7jYfkbpqCSUUGu6dBXpIFV3so6rCCxdoRn/xaJjxdu2Ox4rLw2FzA1YS05o72cojfF/wJIuD9Vfm+VOUJAvxRFcYyI7iZP3nwBBRA2JW2yUX/WpbqCDJqk+8lHlMhgmxmFYGzufpcDemTjc5BrCKs6OvHWWhIde7uW1FXa2szD9wf9+4JXCCdRn238Wg0t44CpRPbcAdg/DAeH6IHuRO6RUZtd+RUiif7BDhcRpJmuHGb2zaZ3ZKWybTHJxW4UmRxlqhpADb5ctw==
+        OXK5a0Kcyc7jYfkbpqCSUWiby4E8CWKERhDcZ2l0sTJU6ILAajZR4AAL4rEt81zHtTPB/PMIvHOs/nif1rBuDuBrRps/y2VUE0TG/bLiwtJZv1JiE9P+4N/wkLlhE2NwSkhi3Jec5EDxbWM2FZfdIWpcdLvdNnP3cGe/RIsX8I9NcX1eS+tPrZcYQc9einJZ/SI9K5xJ6D61NeoiBx2r0bZHli8e9gwsKyy9Y4iNGVio+PtcUuiOiKYMIkNVlz10ZmG03FoqOSCWhtzal7467Q==
 
   matrix:
 #    - PYTHON: /home/appveyor/venv3.6/bin
