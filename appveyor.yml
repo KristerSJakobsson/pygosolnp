@@ -44,7 +44,7 @@ build_script:
       "${PYTHON}/python" "${APPVEYOR_BUILD_FOLDER}/setup.py" sdist bdist_wheel
 
 artifacts:
-  - path: "/"
+  - path: "/dist"
 
 #test_script:
 #  # Test the compiled build
@@ -55,4 +55,4 @@ on_success:
   # Upload the generated wheel package to pypi
   - sh: |
       /home/appveyor/venv3.8/bin/pip install twine==3.1.1
-      /home/appveyor/venv3.8/bin/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${APPVEYOR_BUILD_FOLDER}/dist/pygosolnp-2021.2.22-py3-none-any.whl"
+      /home/appveyor/venv3.8/bin/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${APPVEYOR_BUILD_FOLDER}/dist/pygosolnp-2021.2.24-py3-none-any.whl"
