@@ -12,9 +12,9 @@ environment:
         OXK5a0Kcyc7jYfkbpqCSUWiby4E8CWKERhDcZ2l0sTJU6ILAajZR4AAL4rEt81zHtTPB/PMIvHOs/nif1rBuDuBrRps/y2VUE0TG/bLiwtJZv1JiE9P+4N/wkLlhE2NwSkhi3Jec5EDxbWM2FZfdIWpcdLvdNnP3cGe/RIsX8I9NcX1eS+tPrZcYQc9einJZ/SI9K5xJ6D61NeoiBx2r0bZHli8e9gwsKyy9Y4iNGVio+PtcUuiOiKYMIkNVlz10ZmG03FoqOSCWhtzal7467Q==
 
   matrix:
-#    - PYTHON: /home/appveyor/venv3.6/bin
-#    - PYTHON: /home/appveyor/venv3.7/bin
-#    - PYTHON: /home/appveyor/venv3.8/bin
+    - PYTHON: /home/appveyor/venv3.6/bin
+    - PYTHON: /home/appveyor/venv3.7/bin
+    - PYTHON: /home/appveyor/venv3.8/bin
     - PYTHON: /home/appveyor/venv3.9/bin
 
 for:
@@ -46,10 +46,10 @@ build_script:
 artifacts:
   - path: "/dist"
 
-#test_script:
-#  # Test the compiled build
-#  - sh: |
-#        "${PYTHON}/python" -m pytest --cov-report=xml --cov=pygosolnp "${APPVEYOR_BUILD_FOLDER}/tests/"
+test_script:
+  # Test the compiled build
+  - sh: |
+        "${PYTHON}/python" -m pytest --cov-report=xml --cov=pygosolnp "${APPVEYOR_BUILD_FOLDER}/tests/"
 
 on_success:
   # Upload the generated wheel package to pypi
