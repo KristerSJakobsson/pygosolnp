@@ -26,3 +26,4 @@ evaluation_type = None
 number_of_parameters = None
 eval_results = None
 restart_results = None
+restart_convergence = None
