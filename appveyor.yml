@@ -28,7 +28,7 @@ for:
         PYPI_USERNAME: __token__
         PYPI_SERVER: https://upload.pypi.org/legacy/
         PYPI_PASSWORD:
-          secure: BlFonvNFzspp5kZ6nsJTjSJfWqviD0DDAiCgMtKVbyspHPCu+PR/fS++fUCt6hM3X03oTdvzX0wYGbZiZwPr09SO4lblS0Qyilm8rnHpICzuCDn+KBBNrIFYdvU4WYndcQ9fNniPw1QiWxmMJsbxsSc7io3thIt+fG8L9OJxFQmjzDj2Az0oXOUswSVjKmq8aoOD2agdcS+JI6uyEq9Ve5kQYdY4Bgn3FNWSsL8QxnHW8MQxuNrpaWvhV22BGqGk0NQVNlnlEyCuiPVatPKsUA==
+          secure: BlFonvNFzspp5kZ6nsJTjZhe70GzsNHPjsCw+6xTyPiQE2eZg4hbf2o3SPwVsdObLnSwsiNUtsfTvstjwj5SZrTJj6P7pXCAr55T4cE3o6PCP8Z3/3C6l9nvFDw3CoQMrFPDWDKu9hwItO4Yndu46DQoz+uSlDZBvJF1wCzw20hGzeTDPnfPnELpa3fFC3SZTEPYx6kzRpSizJoT9Y+8IhIRo7Nm9mu6QiZJqRSDRVtT9vk6Ra44XSJ52J/+t+Z4GthRixxKTnGDtB9Ywt06Ug==
 
 install:
   - sh: |
