@@ -2,7 +2,7 @@ import os
 import setuptools
 from datetime import datetime
 
-__version__ = datetime.today().strftime('%Y.%m.%d').replace(".0", ".")  # Remove initial 0 from date, ex: 01 -> 1
+__version__ = "2021.5.1"
 
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.md')) as file:
