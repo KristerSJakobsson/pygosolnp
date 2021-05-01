@@ -139,7 +139,7 @@ def solve(obj_func: Callable,
         eval_results = Array(c_double, model.number_of_evaluations)  # Results from the eval function
         restart_results = Array(c_double,
                                 model.number_of_restarts * model.number_of_parameters)  # Results from pysolnp restarts
-
+        restart_convergence = Array(c_bool, model.number_of_restarts)
         initargs = (
             obj_func,
             par_lower_limit,
@@ -159,7 +159,8 @@ def solve(obj_func: Callable,
             evaluation_type,
             number_of_parameters,
             eval_results,
-            restart_results
+            restart_results,
+            restart_convergence
         )
         with Pool(processes=number_of_processes,
                   initializer=initialize_worker_process_resources,
@@ -178,6 +179,7 @@ def solve(obj_func: Callable,
     else:
         eval_results = [None] * model.number_of_evaluations
         restart_results = [None] * model.number_of_restarts * model.number_of_parameters
+        restart_convergence = [None] * model.number_of_restarts
 
         initialize_worker_process_resources(
             obj_func=obj_func,
@@ -198,7 +200,8 @@ def solve(obj_func: Callable,
             evaluation_type=model.evaluation_type.value,
             number_of_parameters=model.number_of_parameters,
             eval_results=eval_results,
-            restart_results=restart_results
+            restart_results=restart_results,
+            restart_convergence=restart_convergence
         )
 
         for index in range(model.number_of_evaluations):
@@ -214,13 +217,13 @@ def solve(obj_func: Callable,
             pysolnp_solve(solve_index=solve_index, guess_index=guess_index)
 
     # For each restart, get the resulting parameters
-    solutions = [restart_results[index * model.number_of_parameters: (index + 1) * model.number_of_parameters] for
-                 index in range(model.number_of_restarts)]
+    solutions = [(restart_results[index * model.number_of_parameters: (index + 1) * model.number_of_parameters],
+                  restart_convergence[index]) for index in range(model.number_of_restarts)]
 
     # Each Result represents a solution to the restart (might have not converged)
     all_results = [
-        Result(parameters=solution, obj_value=obj_func(solution), converged=model.check_solution_feasibility(solution))
-        for solution in solutions]
+        Result(parameters=solution, obj_value=obj_func(solution), converged=converged)
+        for solution, converged in solutions]
 
     # pysolnp might have not converged for some solution, if no converging solutions exist, print an warning message.
     if len([solution for solution in all_results if solution.converged]) == 0:

@@ -1,0 +1,58 @@
+# vim ft=yaml
+
+image:
+  - Ubuntu
+
+environment:
+  global:
+    PYPI_USERNAME: __token__
+    PYPI_SERVER: https://test.pypi.org/legacy/
+    PYPI_PASSWORD:
+      secure:
+        OXK5a0Kcyc7jYfkbpqCSUWiby4E8CWKERhDcZ2l0sTJU6ILAajZR4AAL4rEt81zHtTPB/PMIvHOs/nif1rBuDuBrRps/y2VUE0TG/bLiwtJZv1JiE9P+4N/wkLlhE2NwSkhi3Jec5EDxbWM2FZfdIWpcdLvdNnP3cGe/RIsX8I9NcX1eS+tPrZcYQc9einJZ/SI9K5xJ6D61NeoiBx2r0bZHli8e9gwsKyy9Y4iNGVio+PtcUuiOiKYMIkNVlz10ZmG03FoqOSCWhtzal7467Q==
+
+  matrix:
+    - PYTHON: /home/appveyor/venv3.6/bin
+    - PYTHON: /home/appveyor/venv3.7/bin
+    - PYTHON: /home/appveyor/venv3.8/bin
+    - PYTHON: /home/appveyor/venv3.9/bin
+
+for:
+  -
+    branches:
+      only:
+        - release
+
+    environment:
+      global:
+        PYPI_USERNAME: __token__
+        PYPI_SERVER: https://upload.pypi.org/legacy/
+        PYPI_PASSWORD:
+          secure: BlFonvNFzspp5kZ6nsJTjSJfWqviD0DDAiCgMtKVbyspHPCu+PR/fS++fUCt6hM3X03oTdvzX0wYGbZiZwPr09SO4lblS0Qyilm8rnHpICzuCDn+KBBNrIFYdvU4WYndcQ9fNniPw1QiWxmMJsbxsSc7io3thIt+fG8L9OJxFQmjzDj2Az0oXOUswSVjKmq8aoOD2agdcS+JI6uyEq9Ve5kQYdY4Bgn3FNWSsL8QxnHW8MQxuNrpaWvhV22BGqGk0NQVNlnlEyCuiPVatPKsUA==
+
+install:
+  - sh: |
+      "${PYTHON}/python" -m pip install --upgrade pip
+
+build_script:
+  # Build and install the wheel
+  - sh: |
+      cd "${APPVEYOR_BUILD_FOLDER}"
+      "${PYTHON}/pip" install wheel==0.34.2
+      "${PYTHON}/pip" install -r "${APPVEYOR_BUILD_FOLDER}/requirements.txt"
+      "${PYTHON}/pip" install -r "${APPVEYOR_BUILD_FOLDER}/requirements-dev.txt"
+      "${PYTHON}/python" "${APPVEYOR_BUILD_FOLDER}/setup.py" sdist bdist_wheel
+
+artifacts:
+  - path: "/dist"
+
+test_script:
+  # Test the compiled build
+  - sh: |
+        "${PYTHON}/python" -m pytest --cov-report=xml --cov=pygosolnp "${APPVEYOR_BUILD_FOLDER}/tests/"
+
+on_success:
+  # Upload the generated wheel package to pypi
+  - sh: |
+      /home/appveyor/venv3.8/bin/pip install twine==3.1.1
+      /home/appveyor/venv3.8/bin/python -m twine upload --skip-existing --repository-url ${PYPI_SERVER} --username ${PYPI_USERNAME} --password ${PYPI_PASSWORD} "${APPVEYOR_BUILD_FOLDER}/dist/*"

@@ -25,7 +25,8 @@ def initialize_worker_process_resources(obj_func,
                                         evaluation_type,
                                         number_of_parameters,
                                         eval_results,
-                                        restart_results):
+                                        restart_results,
+                                        restart_convergence):
     """
     This function is used to provide the functions in this file access to shared resources when running pygosolnp.
      In multiprocess-mode it will pass multiprocess-safe types for each process, in single-processing it will simply have regular Python types.
@@ -48,6 +49,7 @@ def initialize_worker_process_resources(obj_func,
     :param number_of_parameters: An int / multiprocessing.Value (int) representing the number of parameters for this problem (a.k.a len(par_lower_limit))
     :param eval_results: An List / multiprocessing.Array (float) for storing the evaluation function results
     :param restart_results: An List / multiprocessing.Array (float) for storing the pysolnp calculation parameter results
+    :param restart_convergence: An List / multiprocessing.Array (bool) for storing the pysolnp calculation convergence results
     """
     resources.obj_func = obj_func
     resources.par_lower_limit = par_lower_limit
@@ -68,6 +70,7 @@ def initialize_worker_process_resources(obj_func,
     resources.number_of_parameters = number_of_parameters
     resources.eval_results = eval_results
     resources.restart_results = restart_results
+    resources.restart_convergence = restart_convergence
 
 
 def __resource_value(resource: Any):
@@ -168,6 +171,7 @@ def pysolnp_solve(solve_index: int, guess_index: int):
 
         resources.restart_results[(solve_index * number_of_parameters): (
                 (solve_index + 1) * number_of_parameters)] = solve_result.optimum
+        resources.restart_convergence[solve_index] = solve_result.converged
     except ValueError as value_error:
         if debug:
             print(f"Error happened when running pysolnp for guess with index {guess_index}, ignoring this result. Error message: {value_error}")
