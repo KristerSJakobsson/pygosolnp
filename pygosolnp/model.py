@@ -230,24 +230,3 @@ class ProblemModel:
         if type(self.__debug) is not bool:
             raise ValueError("debug needs to be a boolean value")
 
-    def check_solution_feasibility(self, par_found_solution):
-        if any(value < self.__par_lower_limit[index] - self.__tolerance or self.__par_upper_limit[
-            index] + self.__tolerance < value for index, value in
-               enumerate(par_found_solution)):
-            return False
-
-        if self.__eq_func is not None:
-            equality_function_values = self.__eq_func(par_found_solution)
-            if any(value < self.__eq_values[index] - self.__tolerance or self.__eq_values[
-                index] + self.__tolerance < value for index, value in
-                   enumerate(equality_function_values)):
-                return False
-
-        if self.__ineq_func is not None:
-            inequality_function_values = self.__ineq_func(par_found_solution)
-            if any(value < self.__ineq_lower_bounds[index] - self.__tolerance or self.__ineq_upper_bounds[
-                index] + self.__tolerance < value for
-                   index, value in enumerate(inequality_function_values)):
-                return False
-
-        return True
