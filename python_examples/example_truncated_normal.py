@@ -3,6 +3,7 @@
 ############################
 
 from typing import List, Optional
+import time
 
 # Numpy random has the PCG64 generator which according to some research is better than Mersenne Twister
 from numpy.random import Generator, PCG64
@@ -50,6 +51,8 @@ parameter_lower_bounds = [-4.0] * 4
 parameter_upper_bounds = [4.0] * 4
 
 if __name__ == '__main__':
+    start = time.time()
+
     # Instantiate sampling object
     sampling = TruncatedNormalSampling(
         parameter_lower_bounds=parameter_lower_bounds,
@@ -62,14 +65,23 @@ if __name__ == '__main__':
         par_lower_limit=parameter_lower_bounds,
         par_upper_limit=parameter_upper_bounds,
         number_of_restarts=6,
-        number_of_simulations=20000,
+        number_of_simulations=2000,
         pysolnp_max_major_iter=25,
         pysolnp_tolerance=1E-9,
         start_guess_sampling=sampling)
 
-    print(results.best_solution)
+    end = time.time()
 
-# Best solution: [2.651591117309446, 1.7843343303461394, 3.8557508243271172, 2.601788248290573]
-# Objective function value: 101.48726054338877
-# Not very good, the truncated normal function has generated samples that are mostly close to 0
-# This is not very good for the permutation function
+    all_results = results.all_results
+    print("; ".join([f"Solution {index + 1}: {solution.obj_value}" for index, solution in enumerate(all_results)]))
+    best_solution = results.best_solution
+    print(f"Best solution: {results.best_solution.parameters}")
+    print(f"Objective function value: {results.best_solution.obj_value}")
+    print(f"Elapsed time: {end - start} s")
+
+# Solution 1: 0.0016119745327847497; Solution 2: 0.005968645850086645; Solution 3: 0.006083292803668321; Solution 4: 0.006629107105976147; Solution 5: 0.005305936314073526; Solution 6: 0.006049589559946693
+# Best solution: [1.3008954298086124, 3.181786909056148, 1.3814249752478918, 3.9436695447632877]
+# Objective function value: 0.0016119745327847497
+# Elapsed time: 8.562503099441528 s
+
+# Quicker than Grid Sampling but not as accurate in the same number of optimization attempts.

@@ -2,6 +2,7 @@
 # This example shows how to make your own custom distributions for use with pygosolnp
 ############################
 
+import time
 from itertools import chain
 from typing import List
 
@@ -55,6 +56,8 @@ parameter_lower_bounds = [-4.0] * 4
 parameter_upper_bounds = [4.0] * 4
 
 if __name__ == '__main__':
+    start = time.time()
+
     # Instantiate sampling object
     sampling = GridSampling(
         parameter_lower_bounds=parameter_lower_bounds,
@@ -72,8 +75,18 @@ if __name__ == '__main__':
         pysolnp_tolerance=1E-9,
         start_guess_sampling=sampling)
 
-    print(results.best_solution)
+    end = time.time()
 
-# Best solution: [0.6222222222222218, 2.2222222222222223, 3.822222222222222, 3.2888888888888888]
-# Objective function value: 9.91928145483169
-# Not perfect, but much better than truncated normal!
+    all_results = results.all_results
+    print("; ".join([f"Solution {index + 1}: {solution.obj_value}" for index, solution in enumerate(all_results)]))
+    best_solution = results.best_solution
+    print(f"Best solution: {results.best_solution.parameters}")
+    print(f"Objective function value: {results.best_solution.obj_value}")
+    print(f"Elapsed time: {end - start} s")
+
+# Solution 1: 0.0006360327708392506; Solution 2: 0.006239163594915304; Solution 3: 0.006140229082904356; Solution 4: 0.006218870214655177; Solution 5: 0.005963823643719209; Solution 6: 0.13065649880545976
+# Best solution: [1.1622677695732497, 1.683172007310748, 3.9509962074974956, 3.159134907203731]
+# Objective function value: 0.0006360327708392506
+# Elapsed time: 22.986207962036133 s
+
+# Slower than Truncated Normal but higher precision in the same number of optimization attempts.
